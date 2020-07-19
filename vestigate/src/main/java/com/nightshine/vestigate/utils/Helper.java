@@ -1,7 +1,9 @@
 package com.nightshine.vestigate.utils;
 
+import com.nightshine.vestigate.model.Company;
 import com.nightshine.vestigate.model.RoleType;
 import com.nightshine.vestigate.model.User;
+import com.nightshine.vestigate.payload.request.CompanyRegistration_UploadRequest;
 import com.nightshine.vestigate.payload.request.UserUpdateRequest;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,5 +31,15 @@ public class Helper {
         }
         if (userRequest.getImage() != null)
             user.setImage(userRequest.getImage());
+    }
+
+    public static Company copyCompanyDetails(Company company, CompanyRegistration_UploadRequest companyRegistrationUploadRequest) {
+        if (companyRegistrationUploadRequest.getCompanyName() != null)
+            company.setCompanyName(companyRegistrationUploadRequest.getCompanyName());
+        if (companyRegistrationUploadRequest.getDescription() != null)
+            company.setDescription(companyRegistrationUploadRequest.getDescription());
+        if (companyRegistrationUploadRequest.getProjects() != null)
+            company.setProjects(companyRegistrationUploadRequest.getProjects());
+        return company;
     }
 }
