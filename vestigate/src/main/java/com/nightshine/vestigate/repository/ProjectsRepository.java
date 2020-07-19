@@ -15,4 +15,7 @@ public interface ProjectsRepository extends MongoRepository<Projects,String> {
 
     @Query("{'id':?0,isDeleted:false}")
     Projects findByProjectId(String projectId);
+
+    @Query("{'name':?0,isDeleted:false}")
+    Projects findByProjectName(String pName);
 }

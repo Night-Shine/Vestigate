@@ -11,6 +11,7 @@ import java.util.List;
 public interface BoardsRepository extends MongoRepository<Boards,String> {
 
     @Query("{'id':{$in:?0}}")
-    List<Boards> getTeamsByIds(List<String> boardIds);
+    List<Boards> getBoardsByIds(List<String> boardIds);
+    ;
 
 }
