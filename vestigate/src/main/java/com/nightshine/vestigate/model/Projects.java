@@ -1,8 +1,8 @@
 package com.nightshine.vestigate.model;
 
 
-import com.mongodb.lang.NonNull;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 @Getter
 @Setter
-@Document(collection = "Projects")
+@Document(collection = "projects")
 public class Projects {
 
     @Id
@@ -29,12 +29,12 @@ public class Projects {
 
     @NonNull
     @Indexed(unique=true)
-    public String name;
+    public String companyName;
 
 
     private String description;
 
-    private String _url;
+    private String companyUrl;
 
     public String image;
 
@@ -42,9 +42,9 @@ public class Projects {
     private Boolean isDeleted = false;
 
     @Field
-    private List<String> teamId = Collections.EMPTY_LIST;
+    private List<String> teamId;
 
     @Field
-    private List<String> boardsId = Collections.EMPTY_LIST;
+    private List<String> boardsId;
 
 }

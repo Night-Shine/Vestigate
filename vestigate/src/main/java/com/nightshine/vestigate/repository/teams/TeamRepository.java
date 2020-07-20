@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface TeamRepository extends MongoRepository<Team,String> , CustomTeamRepository<Team, String> {
+public interface TeamRepository extends MongoRepository<Team,String> {
 
     @Query("{'projectId':?0,'isDeleted':false}")
     List<Team> getTeamsByProject(String projectId);
