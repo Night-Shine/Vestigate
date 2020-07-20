@@ -71,4 +71,16 @@ public class TeamController {
         Team team = teamService.updateTeam(teamUpdateRequest, teamId);
         return new ResponseEntity<>(team, HttpStatus.ACCEPTED);
     }
+
+    @DeleteMapping("/deleteMultipleTeams")
+    public ResponseEntity<?> deleteMultipleTeams(@Valid @RequestBody List<String> ids) {
+        teamService.deleteMultipleTeams(ids);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/updateAllTeams/{teamId}")
+    public ResponseEntity<Team> updateTeams(@Valid @RequestBody TeamUpdateRequest teamUpdateRequest, @PathVariable String teamId) throws TeamNotFound {
+        Team team = teamService.updateTeam(teamUpdateRequest, teamId);
+        return new ResponseEntity<>(team, HttpStatus.ACCEPTED);
+    }
 }

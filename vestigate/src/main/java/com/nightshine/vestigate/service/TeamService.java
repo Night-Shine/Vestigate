@@ -4,7 +4,9 @@ package com.nightshine.vestigate.service;
 
 import com.mongodb.client.result.UpdateResult;
 import com.nightshine.vestigate.exception.CompanyNotFound;
+import com.nightshine.vestigate.exception.ProjectNotFound;
 import com.nightshine.vestigate.exception.TeamNotFound;
+import com.nightshine.vestigate.model.Projects;
 import com.nightshine.vestigate.model.Team;
 import com.nightshine.vestigate.payload.request.TeamUpdateRequest;
 import com.nightshine.vestigate.repository.teams.CustomTeamRepositoryImpl;
