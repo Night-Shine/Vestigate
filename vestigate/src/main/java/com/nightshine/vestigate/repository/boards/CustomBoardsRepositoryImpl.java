@@ -1,6 +1,6 @@
 package com.nightshine.vestigate.repository.boards;
 
-import com.nightshine.vestigate.model.Board;
+import com.nightshine.vestigate.model.Boards;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -21,7 +21,7 @@ public class CustomBoardsRepositoryImpl<T, ID> implements CustomBoardsRepository
         query.addCriteria(Criteria.where("id").in(ids));
         Update update = new Update();
         update.set("isDeleted", "true");
-        mongoTemplate.updateMulti(query, update, Board.class);
+        mongoTemplate.findAndModify(query, update, Boards.class);
 //        });
     }
 }

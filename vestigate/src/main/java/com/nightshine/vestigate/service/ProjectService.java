@@ -39,8 +39,6 @@ public class ProjectService {
     @Autowired
     private BoardsService boardsService;
 
-    @Autowired
-    private CustomProjectRepositoryImpl customProjectRepository;
 
 
 
