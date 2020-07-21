@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface BoardsRepository extends MongoRepository<Boards,String> {
+public interface BoardsRepository extends MongoRepository<Boards,String>, CustomBoardsRepository<Boards, String> {
 
     @Query("{'id':{$in:?0}}")
     List<Boards> getBoardsByIds(List<String> boardIds);

@@ -1,6 +1,8 @@
 package com.nightshine.vestigate.repository.projects;
 
 import com.nightshine.vestigate.model.Projects;
+import com.nightshine.vestigate.model.Team;
+import com.nightshine.vestigate.repository.teams.CustomTeamRepository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -8,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProjectsRepository extends MongoRepository<Projects,String> {
+public interface ProjectsRepository extends MongoRepository<Projects,String>, CustomProjectRepository<Projects, String> {
 
     @Query("{'companyId':?0,'isDeleted':false}")
     List<Projects> getProjectsByCompanyId(String companyId);
