@@ -81,4 +81,9 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getAll());
     }
 
+    @GetMapping("/getAllP")
+    public List<Projects> getALL(){
+        return projectService.getAll();
+    }
+
 }
