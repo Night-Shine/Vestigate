@@ -52,5 +52,4 @@ public class Helper {
         if (taskRequest.getComments() != null)
             task.setComments(taskRequest.getComments());
     }
-
 }

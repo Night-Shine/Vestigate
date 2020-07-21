@@ -1,5 +1,6 @@
 package com.nightshine.vestigate.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,19 +38,19 @@ public class TaskServiceImpl implements TaskService{
 	@Override
 	public ResponseEntity deleteTask(String taskId) throws TaskNotFound {
 		// TODO Auto-generated method stub
-		//Task deletedTask = repo.findByTaskId(taskId);
-		Query query = new Query();
-		query.addCriteria(Criteria.where("id").is(taskId));
-		Task deletedTask = mongoTemplate.findOne(query, Task.class);
+		Task deletedTask = repo.findByTaskId(taskId);
 		if(deletedTask != null) {
 			List<Task> subTasks = deletedTask.getSubTask();
+			List<String> subTasksIds = new ArrayList<>();
 			for(Task st : subTasks){
-				setIsDeletedTrue(st.getId());
+				subTasksIds.add(st.getId());
 			}
-			setIsDeletedTrue(taskId);
+			repo.deleteAll(subTasksIds);
+			repo.deleteById(taskId);
 			return new ResponseEntity(HttpStatus.OK);
 		}
 		else throw new TaskNotFound("No task available to delete");
+
 	}
 
 	@Override
@@ -103,7 +104,7 @@ public class TaskServiceImpl implements TaskService{
 			List<Task> subTasks = task.getSubTask();
 			for(Task st : subTasks){
    				if(st.getId().equals(subTaskId)) {
-   					st.setIsDeleted(true);
+   					repo.deleteById(st.getId());
    					subTasks.remove(st);
    					break;
    				}
@@ -179,12 +180,5 @@ public class TaskServiceImpl implements TaskService{
         return new ResponseEntity(HttpStatus.OK);
     }
 
-	public UpdateResult setIsDeletedTrue(String taskId){
-		Query query = new Query();
-		query.addCriteria(Criteria.where("id").is(taskId));
-		Update update = new Update();
-		update.set("isDeleted", true);
-		UpdateResult t = mongoTemplate.updateFirst(query, update, Task.class);
-		return t;
-	}
+
 }

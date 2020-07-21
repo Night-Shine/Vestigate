@@ -23,4 +23,13 @@ public class CustomTaskRepositoryImpl <T, ID> implements CustomTaskRepository<T,
         update.set("isDeleted", "true");
         mongoTemplate.updateMulti(query, update, Task.class);
     }
+
+    @Override
+    public void deleteById(ID id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(id));
+        Update update = new Update();
+        update.set("isDeleted", "true");
+        mongoTemplate.findAndModify(query, update, Task.class);
+    }
 }

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @Component
 @Document(collection="Task")
-public class Task {
+public class Task extends DateAudit{
 	public Task() {
 	}
 	public Task(String title, String description,  String status, String assignee,
