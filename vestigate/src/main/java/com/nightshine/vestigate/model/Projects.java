@@ -29,7 +29,7 @@ public class Projects {
 
     @NonNull
     @Indexed(unique=true)
-    public String companyName;
+    public String projectName;
 
 
     private String description;

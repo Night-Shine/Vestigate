@@ -21,7 +21,7 @@ public class CustomBoardsRepositoryImpl<T, ID> implements CustomBoardsRepository
         query.addCriteria(Criteria.where("id").in(ids));
         Update update = new Update();
         update.set("isDeleted", "true");
-        mongoTemplate.findAndModify(query, update, Boards.class);
+        mongoTemplate.updateMulti(query, update, Boards.class);
 //        });
     }
 }
