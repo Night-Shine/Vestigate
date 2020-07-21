@@ -1,6 +1,9 @@
 package com.nightshine.vestigate.utils;
 
+import com.nightshine.vestigate.model.RoleType;
+import com.nightshine.vestigate.model.Task;
 import com.nightshine.vestigate.model.User;
+import com.nightshine.vestigate.payload.request.TaskUpdateRequest;
 import com.nightshine.vestigate.payload.request.UserUpdateRequest;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,5 +25,24 @@ public class Helper {
             user.setRoleType(userRequest.getRoleType());
         if (userRequest.getImage() != null)
             user.setImage(userRequest.getImage());
+    }
+
+    public static void copyTaskDetails(Task task, TaskUpdateRequest taskRequest) {
+        if (taskRequest.getTitle() != null)
+            task.setTitle(taskRequest.getTitle());
+        if (taskRequest.getAssignee() != null)
+            task.setAssignee(taskRequest.getAssignee());
+        if (taskRequest.getReporter() != null)
+            task.setReporter(taskRequest.getReporter());
+        if (taskRequest.getDescription() != null)
+            task.setDescription(taskRequest.getDescription());
+        if (taskRequest.getPriority() != null)
+            task.setPriority(taskRequest.getPriority());
+        if (taskRequest.getStoryPoints() != null)
+            task.setStoryPoints(taskRequest.getStoryPoints());
+        if (taskRequest.getSubTask() != null)
+            task.setSubTask(taskRequest.getSubTask());
+        if (taskRequest.getComments() != null)
+            task.setComments(taskRequest.getComments());
     }
 }
