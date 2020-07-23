@@ -66,8 +66,8 @@ public class BoardsController {
     }
 
     @PutMapping("/updateAllBoards/{boardId}")
-    public ResponseEntity<Boards> updateUser(@Valid @RequestBody BoardsUpdateRequest boardUpdateRequest, @PathVariable String boardId) throws  BoardNotFound {
-        Boards boards = boardsService.updateBoard(boardUpdateRequest, boardId);
-        return new ResponseEntity<>(boards, HttpStatus.ACCEPTED);
+    public ResponseEntity<Board> updateUser(@Valid @RequestBody BoardsUpdateRequest boardUpdateRequest, @PathVariable String boardId) throws  BoardNotFound {
+        Board board = boardsService.updateBoard(boardUpdateRequest, boardId);
+        return new ResponseEntity<>(board, HttpStatus.ACCEPTED);
     }
 }
