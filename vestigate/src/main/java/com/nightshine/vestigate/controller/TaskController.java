@@ -1,6 +1,7 @@
 package com.nightshine.vestigate.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.nightshine.vestigate.exception.TaskNotFound;
 import com.nightshine.vestigate.model.Task;
@@ -9,72 +10,64 @@ import com.nightshine.vestigate.service.TaskServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
+@RequestMapping("/tasks")
 public class TaskController {
 	
 	@Autowired
 	TaskServiceImpl service;
 	
-	@PostMapping("/tasks/add")
-	public Task addTask(@RequestBody Task task){
-		return service.addTask(task);
+	@PostMapping("/addTask")
+	public ResponseEntity<Task> addTask(@RequestBody Task task){
+		return new ResponseEntity<Task>(service.addTask(task),HttpStatus.CREATED);
 	}
 	
-	@PutMapping("/tasks/update/{taskId}")
-	public Task updateTask(@RequestBody TaskUpdateRequest taskUpdateRequest, @PathVariable String taskId) throws TaskNotFound {
-		return service.updateTask(taskUpdateRequest, taskId);
+	@PutMapping("/updateTask/{taskId}")
+	public ResponseEntity<Task> updateTask(@RequestBody TaskUpdateRequest taskUpdateRequest, @PathVariable String taskId) throws TaskNotFound {
+		return new ResponseEntity<Task>(service.updateTask(taskUpdateRequest, taskId), HttpStatus.ACCEPTED);
 	}
 	
-	@DeleteMapping("/tasks/delete")
-	public Task deleteTask(@RequestParam String taskId){
+	@DeleteMapping("/deleteTask")
+	public ResponseEntity deleteTask(@RequestParam String taskId) throws TaskNotFound {
 		return service.deleteTask(taskId);
 	}
 	
-	@GetMapping("/tasks/id")
-	public Task getTask(@RequestParam String taskId) {
-		return service.getTask(taskId);
+	@GetMapping("/taskId")
+	public ResponseEntity<Optional<Task>> getTask(@RequestParam String taskId) throws TaskNotFound {
+		return new ResponseEntity<Optional<Task>>(service.getTask(taskId), HttpStatus.FOUND);
 	}
 	
-	@GetMapping("/tasks/all")
-	public List<Task> getAllTasks() {
-		return service.getAllTasks();
+	@GetMapping("/getAllTasks")
+	public ResponseEntity<List<Task>> getAllTasks() {
+		return new ResponseEntity<List<Task>>(service.getAllTasks(), HttpStatus.FOUND);
 	}
 	
-	@GetMapping("/subtasks/task-id")
-	public List<Task> getSubTasks(@RequestParam String taskId) {
-		return service.getSubTasks(taskId);
+	@GetMapping("/{taskId}/subTasks")
+	public ResponseEntity<List<Task>> getSubTasks(@PathVariable String taskId) throws TaskNotFound {
+		return new ResponseEntity<List<Task>>(service.getSubTasks(taskId), HttpStatus.FOUND);
 	}
 	
-	@PostMapping("/subtask/add")
-	public Task addSubTask(@RequestParam String taskId, @RequestBody Task subTask) throws TaskNotFound{
-		System.out.println(taskId + " " + subTask.getAssignee());
-		return service.addSubTask(taskId,subTask);
+	@PostMapping("/{taskId}/subTasks/add")
+	public ResponseEntity<Task> addSubTask(@PathVariable String taskId, @RequestBody Task subTask) throws TaskNotFound{
+		return new ResponseEntity<Task>(service.addSubTask(taskId,subTask),HttpStatus.CREATED);
 	}
 	
-	@PutMapping("/subtask/update/{taskId}/{subTaskId}")
-	public Task updateSubTask(@PathVariable String taskId, @RequestBody TaskUpdateRequest subTaskRequest, @PathVariable String subTaskId) throws TaskNotFound{
-		return service.updateSubTask(taskId,subTaskRequest,subTaskId);
+	@PutMapping("/{taskId}/subTasks/update/{subTaskId}")
+	public ResponseEntity<Task> updateSubTask(@PathVariable String taskId, @RequestBody TaskUpdateRequest subTaskRequest, @PathVariable String subTaskId) throws TaskNotFound{
+		return new ResponseEntity<Task>(service.updateSubTask(taskId,subTaskRequest,subTaskId), HttpStatus.ACCEPTED);
 	}
 	
-	@DeleteMapping("/subtask/delete")
-	public Task deleteSubTask(@RequestParam String taskId, @RequestParam String subTaskId) throws TaskNotFound{
+	@DeleteMapping("/{taskId}/subTasks/delete/{subTaskId}")
+	public ResponseEntity deleteSubTask(@PathVariable String taskId, @PathVariable String subTaskId) throws TaskNotFound{
 		return service.deleteSubTask(taskId,subTaskId);
 	}
 	
-	@GetMapping("/subtask/subtask-id")
-	public Task getSubTask(@RequestParam String taskId, @RequestParam String subTaskId) throws TaskNotFound{
-		return service.getSubTask(taskId, subTaskId);
+	@GetMapping("/{taskId}/subTasks/{subTaskId}")
+	public ResponseEntity<Task> getSubTask(@PathVariable String taskId, @PathVariable String subTaskId) throws TaskNotFound{
+		return new ResponseEntity<Task>(service.getSubTask(taskId, subTaskId), HttpStatus.FOUND);
 	}
 	
 	@DeleteMapping("/deleteMultipleTasks")

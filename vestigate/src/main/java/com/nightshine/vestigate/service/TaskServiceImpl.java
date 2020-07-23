@@ -9,6 +9,8 @@ import com.nightshine.vestigate.payload.request.TaskUpdateRequest;
 import com.nightshine.vestigate.repository.task.TaskRepository;
 import com.nightshine.vestigate.utils.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
@@ -25,19 +27,31 @@ public class TaskServiceImpl implements TaskService{
 	}
 
 	@Override
-	public Task deleteTask(String taskId) {
+	public ResponseEntity deleteTask(String taskId) throws TaskNotFound {
 		// TODO Auto-generated method stub
 		Task deletedTask = repo.findByTaskId(taskId);
-		deletedTask.setIsDeleted(true);
-		repo.save(deletedTask);
-		return deletedTask;
+		if(deletedTask != null) {
+			deletedTask.setIsDeleted(true);
+			List<Task> subTasks = deletedTask.getSubTask();
+			for(Task st : subTasks){
+				st.setIsDeleted(true);
+				deletedTask.getSubTask().remove(st);
+			}
+			repo.save(deletedTask);
+			return new ResponseEntity(HttpStatus.OK);
+		}
+		else throw new TaskNotFound("No task available to delete");
 		
 	}
 
 	@Override
-	public Task getTask(String taskId) {
+	public Optional<Task> getTask(String taskId) throws TaskNotFound {
 		// TODO Auto-generated method stub
-		return repo.findByTaskId(taskId);
+		Optional<Task> task = repo.findByTaskIdOptional(taskId);
+		if(task != null){
+			return task;
+		}
+		else throw new TaskNotFound("No task is available");
 	}
 
 	@Override
@@ -47,10 +61,13 @@ public class TaskServiceImpl implements TaskService{
 	}
 
 	@Override
-	public List<Task> getSubTasks(String taskId) {
+	public List<Task> getSubTasks(String taskId) throws TaskNotFound {
 		// TODO Auto-generated method stub
 		Task task = repo.findByTaskId(taskId);
-		return task.getSubTask();
+		if(task != null) {
+			return task.getSubTask();
+		}
+		else throw new TaskNotFound("Invalid Task Id");
 	}
 
 	@Override
@@ -72,7 +89,7 @@ public class TaskServiceImpl implements TaskService{
 
 
 	@Override
-	public Task deleteSubTask(String taskId, String subTaskId) throws TaskNotFound {
+	public ResponseEntity deleteSubTask(String taskId, String subTaskId) throws TaskNotFound {
 		Task task = repo.findByTaskId(taskId);
 		if(task != null) {
 			List<Task> subTasks = task.getSubTask();
@@ -85,7 +102,7 @@ public class TaskServiceImpl implements TaskService{
 			}
 			task.setSubTask(subTasks);
 			repo.save(task);
-			return task;
+			return new ResponseEntity(HttpStatus.OK);
 		}
 		else {
 			throw new TaskNotFound("No Task Available to delete Subtask");
@@ -111,7 +128,7 @@ public class TaskServiceImpl implements TaskService{
 			List<Task> subTasks = task.getSubTask();
 			for(Task st : subTasks){
    				if(st.getId().equals(subTaskId)) {
-   					return st;
+   					subTask = st;
    				}
 			}
 		}
@@ -131,11 +148,14 @@ public class TaskServiceImpl implements TaskService{
 			List<Task> subTasks = task.getSubTask();
 			for(Task st : subTasks){
    				if(st.getId().equals(subTaskId)) {
-   					subTask = TaskServiceImpl.this.updateTask(subTaskRequest, subTaskId);
+   					st = TaskServiceImpl.this.updateTask(subTaskRequest, subTaskId);
+   					subTask = st;
    					visited = true;
    				}
 			}
-			if(!visited) throw new TaskNotFound("No subtask available");
+			task.setSubTask(subTasks);
+			repo.save(task);
+			if(!visited) throw new TaskNotFound("No subTask available");
 		}
 		else {
 			throw new TaskNotFound("No Task Available!!");

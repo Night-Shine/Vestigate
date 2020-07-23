@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -33,12 +34,16 @@ public class Task {
 
 	@Id
 	private String id;
+	@NonNull
 	private String title;
 	private String description;
 	@Field
 	private List<Task> subTask=Collections.emptyList();
+	@NonNull
 	private String status;
+	@NonNull
 	private String assignee;
+	@NonNull
 	private String reporter;
 	private String comments;
 	private String storyPoints;
@@ -49,5 +54,4 @@ public class Task {
     private Boolean isSubTask = false;
 	@Field
     private String userId = "";
-
 }
