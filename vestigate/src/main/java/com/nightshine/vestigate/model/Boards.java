@@ -1,8 +1,6 @@
 package com.nightshine.vestigate.model;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -14,7 +12,9 @@ import java.util.List;
 @Setter
 @Component
 @Document(collection = "boards")
-public class Boards {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Boards extends DateAudit {
 
     @Id
     private String id;
