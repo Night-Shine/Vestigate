@@ -36,17 +36,14 @@ public class TaskController {
 	public ResponseEntity deleteTask(@RequestParam String taskId) throws TaskNotFound {
 		return service.deleteTask(taskId);
 	}
-
 	@GetMapping("/taskId")
 	public ResponseEntity<Optional<Task>> getTask(@RequestParam String taskId) throws TaskNotFound {
 		return new ResponseEntity<Optional<Task>>(service.getTask(taskId), HttpStatus.FOUND);
 	}
-
 	@GetMapping("/getAllTasks")
 	public ResponseEntity<List<Task>> getAllTasks() {
 		return new ResponseEntity<List<Task>>(service.getAllTasks(), HttpStatus.FOUND);
 	}
-
 	@GetMapping("/{taskId}/subTasks")
 	public ResponseEntity<List<Task>> getSubTasks(@PathVariable String taskId) throws TaskNotFound {
 		return new ResponseEntity<List<Task>>(service.getSubTasks(taskId), HttpStatus.FOUND);
@@ -66,7 +63,6 @@ public class TaskController {
 	public ResponseEntity deleteSubTask(@PathVariable String taskId, @PathVariable String subTaskId) throws TaskNotFound{
 		return service.deleteSubTask(taskId,subTaskId);
 	}
-
 	@GetMapping("/{taskId}/subTasks/{subTaskId}")
 	public ResponseEntity<Task> getSubTask(@PathVariable String taskId, @PathVariable String subTaskId) throws TaskNotFound{
 		return new ResponseEntity<Task>(service.getSubTask(taskId, subTaskId), HttpStatus.FOUND);
