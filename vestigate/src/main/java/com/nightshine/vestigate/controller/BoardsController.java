@@ -44,30 +44,4 @@ public class BoardsController {
         Board board = boardsService.updateBoard(boardUpdateRequest, boardId);
         return new ResponseEntity<>(board, HttpStatus.ACCEPTED);
     }
-
-//    @PutMapping("/")
-    @DeleteMapping("/deleteMultipleBoards")
-    public ResponseEntity<?> deleteMultipleBoards(@Valid @RequestBody List<String> ids) {
-        boardsService.deleteMultipleBoards(ids);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @PutMapping("/updateAllBoards/{boardId}")
-    public ResponseEntity<Board> updateUser(@Valid @RequestBody BoardsUpdateRequest boardUpdateRequest, @PathVariable String boardId) throws  BoardNotFound {
-        Board board = boardsService.updateBoard(boardUpdateRequest, boardId);
-        return new ResponseEntity<>(board, HttpStatus.ACCEPTED);
-    }
-
-//    @PutMapping("/")
-    @DeleteMapping("/deleteMultipleBoards")
-    public ResponseEntity<?> deleteMultipleBoards(@Valid @RequestBody List<String> ids) {
-        boardsService.deleteMultipleBoards(ids);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @PutMapping("/updateAllBoards/{boardId}")
-    public ResponseEntity<Board> updateUser(@Valid @RequestBody BoardsUpdateRequest boardUpdateRequest, @PathVariable String boardId) throws  BoardNotFound {
-        Board board = boardsService.updateBoard(boardUpdateRequest, boardId);
-        return new ResponseEntity<>(board, HttpStatus.ACCEPTED);
-    }
 }
