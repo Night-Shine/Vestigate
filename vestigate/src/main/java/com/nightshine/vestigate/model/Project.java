@@ -34,7 +34,7 @@ public class Project extends DateAudit {
 
     private String description;
 
-    private String companyUrl;
+    private String projectUrl;
 
     public String image;
 
