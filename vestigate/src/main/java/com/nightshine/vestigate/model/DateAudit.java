@@ -6,10 +6,11 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
-import java.time.Instant;
+import java.util.Date;
 
 @MappedSuperclass
 @JsonIgnoreProperties(
@@ -18,13 +19,14 @@ import java.time.Instant;
 )
 @Setter
 @Getter
+@EnableMongoAuditing
 public abstract class DateAudit implements Serializable {
 
     @CreatedDate
     @NonNull
-    private Instant createdAt;
+    private Date createdAt;
 
     @LastModifiedDate
     @NonNull
-    private Instant updatedAt;
+    private Date updatedAt;
 }
