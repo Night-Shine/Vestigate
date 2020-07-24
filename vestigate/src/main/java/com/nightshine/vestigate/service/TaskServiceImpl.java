@@ -38,7 +38,10 @@ public class TaskServiceImpl implements TaskService{
 	@Override
 	public ResponseEntity deleteTask(String taskId) throws TaskNotFound {
 		// TODO Auto-generated method stub
-		Task deletedTask = repo.findByTaskId(taskId);
+		//Task deletedTask = repo.findByTaskId(taskId);
+		Query query = new Query();
+		query.addCriteria(Criteria.where("id").is(taskId));
+		Task deletedTask = mongoTemplate.findOne(query, Task.class);
 		if(deletedTask != null) {
 			List<Task> subTasks = deletedTask.getSubTask();
 			List<String> subTasksIds = new ArrayList<>();
@@ -179,6 +182,5 @@ public class TaskServiceImpl implements TaskService{
         repo.deleteAll(taskIds);
         return new ResponseEntity(HttpStatus.OK);
     }
-
 
 }
