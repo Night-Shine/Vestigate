@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping("/tasks")
@@ -21,12 +23,12 @@ public class TaskController {
 	TaskServiceImpl service;
 	
 	@PostMapping("/addTask")
-	public ResponseEntity<Task> addTask(@RequestBody Task task){
+	public ResponseEntity<Task> addTask(@Valid @RequestBody Task task){
 		return new ResponseEntity<Task>(service.addTask(task),HttpStatus.CREATED);
 	}
 	
 	@PutMapping("/updateTask/{taskId}")
-	public ResponseEntity<Task> updateTask(@RequestBody TaskUpdateRequest taskUpdateRequest, @PathVariable String taskId) throws TaskNotFound {
+	public ResponseEntity<Task> updateTask(@Valid @RequestBody TaskUpdateRequest taskUpdateRequest, @PathVariable String taskId) throws TaskNotFound {
 		return new ResponseEntity<Task>(service.updateTask(taskUpdateRequest, taskId), HttpStatus.ACCEPTED);
 	}
 	
@@ -51,12 +53,12 @@ public class TaskController {
 	}
 	
 	@PostMapping("/{taskId}/subTasks/add")
-	public ResponseEntity<Task> addSubTask(@PathVariable String taskId, @RequestBody Task subTask) throws TaskNotFound{
+	public ResponseEntity<Task> addSubTask(@PathVariable String taskId, @Valid @RequestBody Task subTask) throws TaskNotFound{
 		return new ResponseEntity<Task>(service.addSubTask(taskId,subTask),HttpStatus.CREATED);
 	}
 	
 	@PutMapping("/{taskId}/subTasks/update/{subTaskId}")
-	public ResponseEntity<Task> updateSubTask(@PathVariable String taskId, @RequestBody TaskUpdateRequest subTaskRequest, @PathVariable String subTaskId) throws TaskNotFound{
+	public ResponseEntity<Task> updateSubTask(@PathVariable String taskId, @Valid @RequestBody TaskUpdateRequest subTaskRequest, @PathVariable String subTaskId) throws TaskNotFound{
 		return new ResponseEntity<Task>(service.updateSubTask(taskId,subTaskRequest,subTaskId), HttpStatus.ACCEPTED);
 	}
 	
@@ -71,8 +73,7 @@ public class TaskController {
 	}
 	
 	@DeleteMapping("/deleteMultipleTasks")
-    public ResponseEntity<?> deleteMultipleTasks(@RequestBody List<String> ids) {
-        service.deleteMultipleTasks(ids);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    public ResponseEntity deleteMultipleTasks(@Valid @RequestBody List<String> ids) {
+        return service.deleteMultipleTasks(ids);
     }
 }

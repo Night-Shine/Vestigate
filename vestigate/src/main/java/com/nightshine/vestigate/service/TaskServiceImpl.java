@@ -3,12 +3,17 @@ package com.nightshine.vestigate.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.mongodb.client.result.UpdateResult;
 import com.nightshine.vestigate.exception.TaskNotFound;
 import com.nightshine.vestigate.model.Task;
 import com.nightshine.vestigate.payload.request.TaskUpdateRequest;
 import com.nightshine.vestigate.repository.task.TaskRepository;
 import com.nightshine.vestigate.utils.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,6 +24,9 @@ public class TaskServiceImpl implements TaskService{
 	
 	@Autowired
 	TaskRepository repo;
+
+	@Autowired
+	private MongoTemplate mongoTemplate;
 	
 	@Override
 	public Task addTask(Task task) {
@@ -29,19 +37,19 @@ public class TaskServiceImpl implements TaskService{
 	@Override
 	public ResponseEntity deleteTask(String taskId) throws TaskNotFound {
 		// TODO Auto-generated method stub
-		Task deletedTask = repo.findByTaskId(taskId);
+		//Task deletedTask = repo.findByTaskId(taskId);
+		Query query = new Query();
+		query.addCriteria(Criteria.where("id").is(taskId));
+		Task deletedTask = mongoTemplate.findOne(query, Task.class);
 		if(deletedTask != null) {
-			deletedTask.setIsDeleted(true);
 			List<Task> subTasks = deletedTask.getSubTask();
 			for(Task st : subTasks){
-				st.setIsDeleted(true);
-				deletedTask.getSubTask().remove(st);
+				setIsDeletedTrue(st.getId());
 			}
-			repo.save(deletedTask);
+			setIsDeletedTrue(taskId);
 			return new ResponseEntity(HttpStatus.OK);
 		}
 		else throw new TaskNotFound("No task available to delete");
-		
 	}
 
 	@Override
@@ -148,9 +156,11 @@ public class TaskServiceImpl implements TaskService{
 			List<Task> subTasks = task.getSubTask();
 			for(Task st : subTasks){
    				if(st.getId().equals(subTaskId)) {
-   					st = TaskServiceImpl.this.updateTask(subTaskRequest, subTaskId);
+   					//st = TaskServiceImpl.this.updateTask(subTaskRequest, subTaskId);
    					subTask = st;
    					visited = true;
+					Helper.copyTaskDetails(subTask, subTaskRequest);
+					repo.save(subTask);
    				}
 			}
 			task.setSubTask(subTasks);
@@ -164,10 +174,17 @@ public class TaskServiceImpl implements TaskService{
 	}
 	
 	@Override
-	public String deleteMultipleTasks(List<String> taskIds){
+	public ResponseEntity deleteMultipleTasks(List<String> taskIds){
         repo.deleteAll(taskIds);
-        return "Deleted selected!";
+        return new ResponseEntity(HttpStatus.OK);
     }
 
-	
+	public UpdateResult setIsDeletedTrue(String taskId){
+		Query query = new Query();
+		query.addCriteria(Criteria.where("id").is(taskId));
+		Update update = new Update();
+		update.set("isDeleted", true);
+		UpdateResult t = mongoTemplate.updateFirst(query, update, Task.class);
+		return t;
+	}
 }

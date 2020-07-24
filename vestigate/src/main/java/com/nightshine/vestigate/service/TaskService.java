@@ -22,6 +22,6 @@ public interface TaskService {
 	//Task deleteMultipleSubTask(String taskId, List<String> subTaskIds) throws TaskNotFound;
 	Task updateSubTask(String taskId, TaskUpdateRequest subTaskRequest, String subTaskId) throws TaskNotFound;
 	Task getSubTask(String taskId, String subTaskId) throws TaskNotFound;
-	String deleteMultipleTasks(List<String> taskIds);
+	ResponseEntity deleteMultipleTasks(List<String> taskIds);
 	
 }

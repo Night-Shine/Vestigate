@@ -1,11 +1,18 @@
 package com.nightshine.vestigate.utils;
 
+import com.mongodb.client.result.UpdateResult;
 import com.nightshine.vestigate.model.RoleType;
 import com.nightshine.vestigate.model.Task;
 import com.nightshine.vestigate.model.User;
 import com.nightshine.vestigate.payload.request.TaskUpdateRequest;
 import com.nightshine.vestigate.payload.request.UserUpdateRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 @Configuration
 public class Helper {
@@ -45,4 +52,5 @@ public class Helper {
         if (taskRequest.getComments() != null)
             task.setComments(taskRequest.getComments());
     }
+
 }
