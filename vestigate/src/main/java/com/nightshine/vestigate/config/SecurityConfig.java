@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
-@EnableMongoAuditing
 @EnableSwagger2
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
@@ -30,6 +29,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
         jsr250Enabled = true,
         prePostEnabled = true
 )
+@EnableMongoAuditing
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     CustomUserDetailsService customUserDetailsService;
@@ -94,6 +94,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/auth/**")
                 .permitAll()
                 .antMatchers("/api/user/checkUsernameAvaila bility", "/api/user/checkEmailAvailability")
+                .permitAll()
+                .antMatchers("/**")
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/api/polls/**", "/api/users/**")
                 .permitAll()

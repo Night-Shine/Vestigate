@@ -24,12 +24,12 @@ public class CustomUserRepositoryImpl<T, ID> implements CustomUserRepository<T, 
 
     @Override
     public void deleteAll(List<String> ids) {
-        ids.forEach(id -> {
+//        ids.forEach(id -> {
             Query query = new Query();
-            query.addCriteria(Criteria.where("id").is(id));
+            query.addCriteria(Criteria.where("id").in(ids));
             Update update = new Update();
             update.set("isDeleted", "true");
-            mongoTemplate.findAndModify(query, update, User.class);
-        });
+            mongoTemplate.updateMulti(query, update, User.class);
+//        });
     }
 }
