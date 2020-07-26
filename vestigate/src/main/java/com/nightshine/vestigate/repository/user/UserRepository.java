@@ -1,16 +1,18 @@
 package com.nightshine.vestigate.repository.user;
 
 import com.nightshine.vestigate.model.User;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface UserRepository extends
-        MongoRepository<User, String>, CustomUserRepository<User, String> {
+        JpaRepository<User, UUID> {
 
     Optional<User> findByEmail(String email);
 
@@ -18,13 +20,21 @@ public interface UserRepository extends
 
     Optional<User> findByUsername(String username);
 
-    Boolean existsByUsername(String username);
-
     Boolean existsByEmail(String email);
 
-    @Query("{isDeleted:false}")
+    @Query("SELECT P FROM User P WHERE P.isDeleted=false ")
     List<User> findAll();
 
-    @Query("{isDeleted:false, id:?0}")
+    @Query("SELECT P FROM User P WHERE P.isDeleted=false and P.id=:id")
+    Optional<User> findById(UUID id);
+
     Optional<User> findById(String id);
+
+    @Modifying
+    @Query("UPDATE User c SET c.isDeleted=true WHERE c.id=:id")
+    void deleteById(UUID id);
+
+    @Modifying
+    @Query("UPDATE User c SET c.isDeleted=true WHERE c.id IN :ids")
+    void deleteAll(List<UUID> ids);
 }

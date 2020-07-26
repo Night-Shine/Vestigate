@@ -1,12 +1,8 @@
 package com.nightshine.vestigate.utils;
 
-import com.nightshine.vestigate.model.RoleType;
 import com.nightshine.vestigate.model.User;
 import com.nightshine.vestigate.payload.request.UserUpdateRequest;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Configuration
 public class Helper {
@@ -22,11 +18,8 @@ public class Helper {
             user.setPassword(userRequest.getPassword());
         if (userRequest.getPosition() != null)
             user.setPosition(userRequest.getPosition());
-        if (userRequest.getRoleType() != null) {
-            Set<RoleType> roleTypes = new HashSet<>();
-            roleTypes.add(userRequest.getRoleType());
-            user.setRoleType(roleTypes);
-        }
+        if (userRequest.getRoleType() != null)
+            user.setRoleType(userRequest.getRoleType());
         if (userRequest.getImage() != null)
             user.setImage(userRequest.getImage());
     }
