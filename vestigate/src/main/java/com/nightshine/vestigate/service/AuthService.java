@@ -1,7 +1,6 @@
 package com.nightshine.vestigate.service;
 
 import com.nightshine.vestigate.exception.UserNotFound;
-import com.nightshine.vestigate.model.RoleType;
 import com.nightshine.vestigate.model.User;
 import com.nightshine.vestigate.payload.request.LoginRequest;
 import com.nightshine.vestigate.payload.request.SignUpRequest;
@@ -57,17 +56,20 @@ public class AuthService {
 
     public Map<String, String> authenticateUser(String token) {
         Map<String, String> userDetails = new HashMap<>();
-        if(userRepository.findById(tokenProvider.getUserIdFromJWT(token)).isPresent()) {
+        if(userRepository.findById(UUID.fromString(tokenProvider.getUserIdFromJWT(token))).isPresent()) {
             userDetails.put("status", "Authentication Successful");
-            userDetails.put("email", userRepository.findById(tokenProvider.getUserIdFromJWT(token)).get().getEmail());
-            userDetails.put("username", userRepository.findById(tokenProvider.getUserIdFromJWT(token)).get().getUsername());
-            userDetails.put("role", userRepository.findById(tokenProvider.getUserIdFromJWT(token)).get().getRoleType().toString());
+            userDetails.put("email", userRepository.findById(UUID.fromString(tokenProvider.getUserIdFromJWT(token))).get().getEmail());
+            userDetails.put("username", userRepository.findById(UUID.fromString(tokenProvider.getUserIdFromJWT(token))).get().getUsername());
+            userDetails.put("role", userRepository.findById(UUID.fromString(tokenProvider.getUserIdFromJWT(token))).get().getRoleType().toString());
+        }
+        else {
+            userDetails.put("status", "Authentication unsuccessful!");
         }
         return userDetails;
     }
 
     public ResponseEntity<?> registerUser(SignUpRequest signUpRequest) {
-        if(userRepository.existsByUsername(signUpRequest.getUsername())) {
+        if(userRepository.findByUsername(signUpRequest.getUsername()).isPresent()) {
             return new ResponseEntity(new ApiResponse(false, "Username is already taken!"),
                     HttpStatus.BAD_REQUEST);
         }
@@ -77,17 +79,14 @@ public class AuthService {
                     HttpStatus.BAD_REQUEST);
         }
         // Creating user's account
-        Set<RoleType> roleTypes = new HashSet<>();
-        roleTypes.add(signUpRequest.getRoleType());
-        User user = new User(
-                signUpRequest.getName(),
-                signUpRequest.getUsername(),
-                signUpRequest.getEmail(),
-                signUpRequest.getPassword(),
-                signUpRequest.getPosition(),
-                roleTypes,
-                signUpRequest.getImage()
-        );
+        User user = new User();
+        user.setName(signUpRequest.getName());
+        user.setUsername(signUpRequest.getUsername());
+        user.setEmail(signUpRequest.getEmail());
+        user.setPassword(signUpRequest.getPassword());
+        user.setPosition(signUpRequest.getPosition());
+        user.setRoleType(signUpRequest.getRoleType());
+        user.setImage(signUpRequest.getImage());
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
@@ -110,7 +109,7 @@ public class AuthService {
 
     public User updateUser(UserUpdateRequest userUpdateRequest, String username) throws UserNotFound {
         Optional<User> optionalUser = userRepository.findByUsername(username);
-        if(!optionalUser.isPresent() || !userRepository.existsByUsername(username)) {
+        if(!optionalUser.isPresent() || !userRepository.findByUsername(username).isPresent()) {
             throw new UserNotFound( "User doesn't exists!");
         }
         User user = optionalUser.get();
@@ -118,11 +117,11 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public void removeUser(String userId) {
+    public void removeUser(UUID userId) {
         userRepository.deleteById(userId);
     }
 
-    public void removeMultipleUsers(List<String> ids) {
+    public void removeMultipleUsers(List<UUID> ids) {
         userRepository.deleteAll(ids);
     }
 }

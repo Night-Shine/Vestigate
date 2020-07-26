@@ -10,9 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
@@ -20,7 +18,7 @@ import java.util.stream.Collectors;
 @Setter
 @Getter
 public class UserPrincipal implements UserDetails {
-    private String id;
+    private UUID id;
 
     private String name;
 
@@ -35,8 +33,9 @@ public class UserPrincipal implements UserDetails {
     private Collection<? extends GrantedAuthority> authorities;
 
     public static UserPrincipal create(User user) {
-        List<GrantedAuthority> authorities = user.getRoleType().stream().map(role ->
-                new SimpleGrantedAuthority(role.toString())
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        List<GrantedAuthority> authorities = users.stream().map(user1 -> new SimpleGrantedAuthority(user1.getRoleType().toString())
         ).collect(Collectors.toList());
 
         return new UserPrincipal(
