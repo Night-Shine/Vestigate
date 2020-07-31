@@ -2,56 +2,53 @@ package com.nightshine.vestigate.model;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.stereotype.Component;
+import com.nightshine.vestigate.model.Priority;
+import lombok.*;
+
+
+
+import javax.persistence.*;
 
 @Getter
 @Setter
-@Component
-@Document(collection="Task")
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "Task")
 public class Task extends DateAudit{
-	public Task() {
-	}
-	public Task(String title, String description,  String status, String assignee,
-			String reporter, String comments, String storyPoints, Priority priority, String userId) {
-		super();
-		this.title = title;
-		this.description = description;
-		this.status = status;
-		this.assignee = assignee;
-		this.reporter = reporter;
-		this.comments = comments;
-		this.storyPoints = storyPoints;
-		this.priority = priority;
-		this.userId = userId;
-	}
-
 	@Id
-	private String id;
+	@Column
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private UUID id;
 	@NonNull
+	@Column
 	private String title;
+	@Column
 	private String description;
-	@Field
+	@Column
+	@ElementCollection
 	private List<Task> subTask=Collections.emptyList();
 	@NonNull
+	@Column
 	private String status;
 	@NonNull
+	@Column
 	private String assignee;
 	@NonNull
+	@Column
 	private String reporter;
+	@Column
 	private String comments;
+	@Column
 	private String storyPoints;
+	@Column
 	private Priority priority;
-	@Field
-    private Boolean isDeleted = false;
-	@Field
-    private Boolean isSubTask = false;
-	@Field
-    private String userId = "";
+	@Column(name="is_deleted")
+	private Boolean isDeleted = false;
+	@Column
+	private Boolean isSubTask = false;
+	@Column
+	private String userId = "";
 }
