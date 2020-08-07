@@ -10,8 +10,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-
-
 @Repository
 public interface TaskRepository extends
         JpaRepository<Task, UUID> {
@@ -24,7 +22,6 @@ public interface TaskRepository extends
 
     @Query("SELECT T FROM Task T WHERE T.isDeleted=false and T.id=:id")
     Task findByTaskId(UUID id);
-
 
     @Modifying
     @Query("UPDATE Task t SET t.isDeleted=true WHERE t.id=:id")

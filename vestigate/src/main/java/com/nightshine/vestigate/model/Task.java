@@ -29,7 +29,7 @@ public class Task extends DateAudit{
 	private String description;
 	@Column
 	@ElementCollection
-	private List<Task> subTask=Collections.emptyList();
+	private List<SubTask> subTask=Collections.emptyList();
 	@NonNull
 	@Column
 	private String status;

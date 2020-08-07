@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-
 import com.nightshine.vestigate.exception.TaskNotFound;
+import com.nightshine.vestigate.model.SubTask;
 import com.nightshine.vestigate.model.Task;
+import com.nightshine.vestigate.payload.request.SubTaskUpdateRequest;
 import com.nightshine.vestigate.payload.request.TaskUpdateRequest;
 import com.nightshine.vestigate.repository.task.TaskRepository;
 import com.nightshine.vestigate.utils.Helper;
@@ -17,13 +18,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Service
 @Transactional
-public class TaskServiceImpl {
+public class TaskService {
 
 	@Autowired
 	TaskRepository repo;
+
+	@Autowired
+	SubTaskService subTaskService;
 
 	public Task addTask(Task task) {
 			return repo.save(task);
@@ -32,14 +35,14 @@ public class TaskServiceImpl {
 	public ResponseEntity deleteTask(UUID taskId) throws TaskNotFound {
 			Task deletedTask = repo.findByTaskId(taskId);
 		if(deletedTask != null) {
-			List<Task> subTasks = deletedTask.getSubTask();
+			List<SubTask> subTasks = deletedTask.getSubTask();
 			List<UUID> subTasksIds = new ArrayList<>();
 			if(subTasks.size() > 0) {
-				for (Task st : subTasks) {
+				for (SubTask st : subTasks) {
 					subTasksIds.add(st.getId());
 				}
-				repo.deleteAll(subTasksIds);
 			}
+			subTaskService.deleteMultipleSubTasks(subTasksIds);
 			repo.deleteById(taskId);
 			return new ResponseEntity(HttpStatus.OK);
 		}
@@ -47,7 +50,7 @@ public class TaskServiceImpl {
 	}
 
 	public Optional<Task> getTask(UUID taskId) throws TaskNotFound {
-			Optional<Task> task = repo.findByIdOptional(taskId);
+		Optional<Task> task = repo.findByIdOptional(taskId);
 		if(task != null){
 			return task;
 		}
@@ -58,20 +61,19 @@ public class TaskServiceImpl {
 			return repo.findAllTasks();
 	}
 
-	public List<Task> getSubTasks(UUID taskId) throws TaskNotFound {
-			Task task = repo.findByTaskId(taskId);
+	public List<SubTask> getSubTasks(UUID taskId) throws TaskNotFound {
+		Task task = repo.findByTaskId(taskId);
 		if(task != null) {
-			return task.getSubTask();
+			return subTaskService.getAllSubTasks();
 		}
 		else throw new TaskNotFound("Invalid Task Id");
 	}
 
-	public Task addSubTask(UUID taskId, Task subTask) throws TaskNotFound {
-			Task task = repo.findByTaskId(taskId);
+	public Task addSubTask(UUID taskId, SubTask subTask) throws TaskNotFound {
+		Task task = repo.findByTaskId(taskId);
 		if(task != null) {
-			subTask.setIsSubTask(true);
-			repo.save(subTask);
-			task.getSubTask().add(subTask);
+			SubTask st = subTaskService.addSubTask(subTask);
+			task.getSubTask().add(st);
 			repo.save(task);
 			return task;
 		}
@@ -83,10 +85,10 @@ public class TaskServiceImpl {
 	public ResponseEntity deleteSubTask(UUID taskId, UUID subTaskId) throws TaskNotFound {
 		Task task = repo.findByTaskId(taskId);
 		if(task != null) {
-			List<Task> subTasks = task.getSubTask();
-			for(Task st : subTasks){
+			List<SubTask> subTasks = task.getSubTask();
+			for(SubTask st : subTasks){
 				if(st.getId().equals(subTaskId)) {
-					repo.deleteById(st.getId());
+					subTaskService.deleteSubTask(subTaskId);
 					subTasks.remove(st);
 					break;
 				}
@@ -110,16 +112,11 @@ public class TaskServiceImpl {
 		return repo.save(task);
 	}
 
-	public Task getSubTask(UUID taskId, UUID subTaskId) throws TaskNotFound {
-			Task subTask = null;
+	public Optional<SubTask> getSubTask(UUID taskId, UUID subTaskId) throws TaskNotFound {
+		Optional<SubTask> subTask = null;
 		Task task = repo.findByTaskId(taskId);
 		if(task != null) {
-			List<Task> subTasks = task.getSubTask();
-			for(Task st : subTasks){
-				if(st.getId().equals(subTaskId)) {
-					subTask = st;
-				}
-			}
+			subTask = subTaskService.getSubTask(subTaskId);
 		}
 		else {
 			throw new TaskNotFound("No Task Available!!");
@@ -127,18 +124,16 @@ public class TaskServiceImpl {
 		return subTask;
 	}
 
-	public Task updateSubTask(UUID taskId, TaskUpdateRequest subTaskRequest, UUID subTaskId) throws TaskNotFound {
-			boolean visited = false;
-		Task subTask = null;
+	public SubTask updateSubTask(UUID taskId, SubTaskUpdateRequest subTaskRequest, UUID subTaskId) throws TaskNotFound {
+		boolean visited = false;
+		SubTask subTask = null;
 		Task task = repo.findByTaskId(taskId);
 		if(task != null) {
-			List<Task> subTasks = task.getSubTask();
-			for(Task st : subTasks){
+			List<SubTask> subTasks = task.getSubTask();
+			for(SubTask st : subTasks){
 				if(st.getId().equals(subTaskId)) {
-					subTask = st;
 					visited = true;
-					Helper.copyTaskDetails(subTask, subTaskRequest);
-					repo.save(subTask);
+					subTaskService.updateSubTask(subTaskRequest,subTaskId);
 				}
 			}
 			task.setSubTask(subTasks);
