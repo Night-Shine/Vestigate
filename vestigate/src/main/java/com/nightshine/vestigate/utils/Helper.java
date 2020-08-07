@@ -1,6 +1,10 @@
 package com.nightshine.vestigate.utils;
 
+import com.nightshine.vestigate.model.SubTask;
+import com.nightshine.vestigate.model.Task;
 import com.nightshine.vestigate.model.User;
+import com.nightshine.vestigate.payload.request.SubTaskUpdateRequest;
+import com.nightshine.vestigate.payload.request.TaskUpdateRequest;
 import com.nightshine.vestigate.payload.request.UserUpdateRequest;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,4 +27,41 @@ public class Helper {
         if (userRequest.getImage() != null)
             user.setImage(userRequest.getImage());
     }
+
+    public static void copyTaskDetails(Task task, TaskUpdateRequest taskRequest) {
+        if (taskRequest.getTitle() != null)
+            task.setTitle(taskRequest.getTitle());
+        if (taskRequest.getAssignee() != null)
+            task.setAssignee(taskRequest.getAssignee());
+        if (taskRequest.getReporter() != null)
+            task.setReporter(taskRequest.getReporter());
+        if (taskRequest.getDescription() != null)
+            task.setDescription(taskRequest.getDescription());
+        if (taskRequest.getPriority() != null)
+            task.setPriority(taskRequest.getPriority());
+        if (taskRequest.getStoryPoints() != null)
+            task.setStoryPoints(taskRequest.getStoryPoints());
+        if (taskRequest.getSubTask() != null)
+            task.setSubTask(taskRequest.getSubTask());
+        if (taskRequest.getComments() != null)
+            task.setComments(taskRequest.getComments());
+    }
+
+    public static void copySubTaskDetails(SubTask subTask, SubTaskUpdateRequest subTaskRequest) {
+        if (subTaskRequest.getTitle() != null)
+            subTask.setTitle(subTaskRequest.getTitle());
+        if (subTaskRequest.getAssignee() != null)
+            subTask.setAssignee(subTaskRequest.getAssignee());
+        if (subTaskRequest.getReporter() != null)
+            subTask.setReporter(subTaskRequest.getReporter());
+        if (subTaskRequest.getDescription() != null)
+            subTask.setDescription(subTaskRequest.getDescription());
+        if (subTaskRequest.getPriority() != null)
+            subTask.setPriority(subTaskRequest.getPriority());
+        if (subTaskRequest.getStoryPoints() != null)
+            subTask.setStoryPoints(subTaskRequest.getStoryPoints());
+        if (subTaskRequest.getComments() != null)
+            subTask.setComments(subTaskRequest.getComments());
+    }
+
 }
