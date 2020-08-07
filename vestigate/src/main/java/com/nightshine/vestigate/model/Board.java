@@ -1,31 +1,39 @@
 package com.nightshine.vestigate.model;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+
 import org.springframework.stereotype.Component;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @Component
-@Document(collection = "boards")
+@Entity
+@Table(name="Board")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Board extends DateAudit {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column
+    private UUID id;
 
-
-    private List<String> backlogs;
+    @Column
+    @ElementCollection
+    private List<UUID> backlogs;
 
     @NonNull
+    @NotBlank
+    @Column
     private String assigned;
 
-    @Field
-    private boolean idDeleted = false;
+    @Column(name = "is_Deleted")
+    private boolean isDeleted = false;
 
 }

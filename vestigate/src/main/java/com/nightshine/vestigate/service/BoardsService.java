@@ -1,6 +1,5 @@
 package com.nightshine.vestigate.service;
 
-import com.mongodb.client.result.UpdateResult;
 import com.nightshine.vestigate.exception.BoardNotFound;
 import com.nightshine.vestigate.exception.ProjectNotFound;
 import com.nightshine.vestigate.model.Board;
@@ -8,56 +7,52 @@ import com.nightshine.vestigate.payload.request.BoardsUpdateRequest;
 import com.nightshine.vestigate.repository.boards.BoardsRepository;
 import com.nightshine.vestigate.utils.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
+
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+@Transactional
 @Service
 public class BoardsService {
     @Autowired
     private ProjectService projectService;
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+
 
     @Autowired
     private BoardsRepository boardsRepository;
 
 
 
-    public void addBoards(String projectId, Board board) throws Exception {
+    public void addBoards(UUID projectId, Board board) throws Exception {
         Board savedBoard = boardsRepository.save(board);
-        String boardId = savedBoard.getId();
+        UUID boardId = savedBoard.getId();
         boolean isAdded = projectService.addBoardToProject(projectId,boardId);
        if(!isAdded){
             throw new ProjectNotFound("Project Does Not Exits");
         }
     }
 
-    public void deleteBoard(String projectId,String boardId) throws Exception {
-        Query query1 = new Query();
-        query1.addCriteria(Criteria.where("id").is(boardId));
-        Board board = mongoTemplate.findOne(query1, Board.class);
-        if(board != null){
-            Update update = new Update();
-            update.set("isDeleted", true);
-            UpdateResult p = mongoTemplate.updateFirst(query1, update, Board.class);
-            boolean isDeleted = projectService.deleteBoardFromProject(projectId,board.getId());
+    public void deleteBoard(UUID projectId,UUID boardId) throws Exception {
+
+        Optional<Board> board = boardsRepository.findById(boardId);
+        if(board.isPresent()){
+            boardsRepository.deleteById(boardId);
+            boolean isDeleted = projectService.deleteBoardFromProject(projectId,boardId);
             if(!isDeleted)
                 throw new ProjectNotFound("Project Does Not Exits");
-
         }
         else{
             throw new BoardNotFound("Board Does Not Exits");
         }
     }
 
-    public List<Board> getBoardsByIds(List<String> boardsIds) throws Exception {
+    public List<Board> getBoardsByIds(List<UUID> boardsIds) throws Exception {
         List<Board> boards = boardsRepository.getBoardsByIds(boardsIds);
         if(boards.size() == 0){
             throw new BoardNotFound("No such boards");
@@ -67,35 +62,41 @@ public class BoardsService {
         }
     }
 
-    public void addTaskToBacklogs(String boardId,String taskId) throws BoardNotFound {
-        Board board = boardsRepository.getBoardById(boardId);
-        if(board == null)
+    public void addTaskToBacklogs(UUID boardId,UUID taskId) throws BoardNotFound {
+        Optional<Board> board = boardsRepository.findById(boardId);
+        if(!board.isPresent())
             throw new BoardNotFound("Board not found");
-        List<String> backlogs = board.getBacklogs();
+        Board b = board.get();
+        List<UUID> backlogs = b.getBacklogs();
 
         if(backlogs == null){
-            List<String> back = new ArrayList<String>();
+            List<UUID> back = new ArrayList<UUID>();
             back.add(taskId);
-            board.setBacklogs(back);
+            b.setBacklogs(back);
         }
         else{
             backlogs.add(taskId);
-            board.setBacklogs(backlogs);
+            b.setBacklogs(backlogs);
         }
-        boardsRepository.save(board);
+        boardsRepository.save(b);
 
     }
 
-    public String deleteMultipleBoards(List<String > boardIds){
+    public String deleteMultipleBoards(UUID projectId,List<UUID > boardIds) throws Exception {
         boardsRepository.deleteAll(boardIds);
+        for(UUID id:boardIds){
+            projectService.deleteBoardFromProject(projectId,id);
+        }
         return "Deleted Multiple the Board";
     }
 
-    public Board updateBoard(BoardsUpdateRequest boardUpdateRequest, String  boardId) throws BoardNotFound {
-        Board board =  boardsRepository.getBoardById(boardId);
-        if(board == null)
+    public Board updateBoard(BoardsUpdateRequest boardUpdateRequest, UUID  boardId) throws BoardNotFound {
+        Optional<Board> board =  boardsRepository.findById(boardId);
+
+        if(!board.isPresent())
             throw new BoardNotFound("No such Board found");
-        Helper.copyBoardDetails(board,boardUpdateRequest);
-        return boardsRepository.save(board);
+        Board b = board.get();
+        Helper.copyBoardDetails(b,boardUpdateRequest);
+        return boardsRepository.save(b);
     }
 }

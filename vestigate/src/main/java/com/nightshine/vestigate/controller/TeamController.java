@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/teams")
@@ -21,19 +22,19 @@ public class TeamController {
     private TeamService teamService;
 
     @PostMapping("/addTeam")
-    private ResponseEntity<?> addTeam(@RequestBody Team team, @RequestParam String projectId) throws Throwable {
+    private ResponseEntity<?> addTeam(@RequestBody Team team, @RequestParam UUID projectId) throws Throwable {
         teamService.saveTeam1(team,projectId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
     }
 
     @GetMapping("/getProjectTeams")
-    private ResponseEntity<List<Team>> getTeamsOfProject(@RequestParam String projectId ){
+    private ResponseEntity<List<Team>> getTeamsOfProject(@RequestParam UUID projectId ){
         return ResponseEntity.ok(teamService.getTeamsByProject(projectId));
     }
 
     @GetMapping("/getCompanyTeams")
-    private ResponseEntity<List<Team>> getTeamsOfCompany(@RequestParam String projectId) throws Throwable {
+    private ResponseEntity<List<Team>> getTeamsOfCompany(@RequestParam UUID projectId) throws Throwable {
         return ResponseEntity.ok(teamService.getTeamsByCompany(projectId));
     }
 
@@ -43,31 +44,19 @@ public class TeamController {
     }
 
     @DeleteMapping("/deleteTeam")
-    private ResponseEntity<?> deleteTeam(@RequestParam String projectId,@RequestParam String teamId) throws Throwable {
+    private ResponseEntity<?> deleteTeam(@RequestParam UUID projectId,@RequestParam UUID teamId) throws Throwable {
          teamService.deleteTeam(projectId,teamId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @DeleteMapping("/deleteMultipleTeams")
-    public ResponseEntity<?> deleteMultipleTeams(@Valid @RequestBody List<String> ids) {
-        teamService.deleteMultipleTeams(ids);
+    public ResponseEntity<?> deleteMultipleTeams(@Valid @RequestBody List<UUID> ids,@RequestParam UUID projectId) throws Throwable {
+        teamService.deleteMultipleTeams(ids,projectId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/updateAllTeams/{teamId}")
-    public ResponseEntity<Team> updateTeams(@Valid @RequestBody TeamUpdateRequest teamUpdateRequest, @PathVariable String teamId) throws TeamNotFound {
-        Team team = teamService.updateTeam(teamUpdateRequest, teamId);
-        return new ResponseEntity<>(team, HttpStatus.ACCEPTED);
-    }
-
-    @DeleteMapping("/deleteMultipleTeams")
-    public ResponseEntity<?> deleteMultipleTeams(@Valid @RequestBody List<String> ids) {
-        teamService.deleteMultipleTeams(ids);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @PutMapping("/updateAllTeams/{teamId}")
-    public ResponseEntity<Team> updateTeams(@Valid @RequestBody TeamUpdateRequest teamUpdateRequest, @PathVariable String teamId) throws TeamNotFound {
+    @PutMapping("/updateTeam/{teamId}")
+    public ResponseEntity<Team> updateTeams(@Valid @RequestBody TeamUpdateRequest teamUpdateRequest, @PathVariable UUID teamId) throws TeamNotFound {
         Team team = teamService.updateTeam(teamUpdateRequest, teamId);
         return new ResponseEntity<>(team, HttpStatus.ACCEPTED);
     }
