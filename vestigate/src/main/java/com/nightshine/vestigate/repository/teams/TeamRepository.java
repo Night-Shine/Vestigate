@@ -1,25 +1,36 @@
 package com.nightshine.vestigate.repository.teams;
 
-import com.nightshine.vestigate.model.Team;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
+import com.nightshine.vestigate.model.Team;;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface TeamRepository extends MongoRepository<Team,String> , CustomTeamRepository<Team, String> {
+public interface TeamRepository extends JpaRepository<Team,UUID> {
 
-    @Query("{'projectId':?0,'isDeleted':false}")
-    List<Team> getTeamsByProject(String projectId);
+    @Query("SELECT P FROM Team P WHERE P.isDeleted=false and P.projectId=:projectId")
+    List<Team> getTeamsByProject(UUID projectId);
 
-    @Query("{'companyId':?0,'isDeleted':false}")
-    List<Team> getTeamsByCompany(String companyId);
+    @Query("SELECT P FROM Team P WHERE P.isDeleted=false and P.companyId=:companyId")
+    List<Team> getTeamsByCompany(UUID companyId);
 
-    @Query("{'id':?0,'isDeleted':false}")
-    Team getTeamById(String id);
+    @Query("SELECT P FROM Team P WHERE P.isDeleted=false and P.id=:id")
+    Optional<Team> findById(UUID id);
 
-    @Query("{'id':{$in:?0}}")
-    List<Team> getTeamsByIds(List<String> teamIds);
+    @Query("SELECT P FROM Team P WHERE P.isDeleted=false and P.id IN :teamIds")
+    List<Team> getTeamsByIds(List<UUID> teamIds);
+
+    @Modifying
+    @Query("UPDATE Team c SET c.isDeleted=true WHERE c.id IN :ids")
+    void deleteAll(List<UUID> ids);
+
+    @Modifying
+    @Query("UPDATE Team c SET c.isDeleted=true WHERE c.id=:id")
+    void deleteById(UUID id);
 
 }

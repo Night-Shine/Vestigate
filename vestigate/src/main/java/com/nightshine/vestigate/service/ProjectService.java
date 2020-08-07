@@ -2,7 +2,6 @@ package com.nightshine.vestigate.service;
 
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.mongodb.client.result.UpdateResult;
 import com.nightshine.vestigate.exception.BoardNotFound;
 import com.nightshine.vestigate.exception.ProjectNotFound;
 import com.nightshine.vestigate.exception.TeamNotFound;
@@ -13,25 +12,23 @@ import com.nightshine.vestigate.payload.request.ProjectUpdateRequest;
 import com.nightshine.vestigate.repository.projects.ProjectsRepository;
 import com.nightshine.vestigate.utils.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
+
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-import org.springframework.data.mongodb.core.MongoTemplate;
-
-
+@Transactional
 @Service
 public class ProjectService {
 
     @Autowired
     private ProjectsRepository projectRepo;
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+
 
     @Autowired
     private TeamService teamService;
@@ -44,45 +41,42 @@ public class ProjectService {
 
 
     @JsonGetter("message")
-    public void saveProject(Project project) throws ProjectNotFound {
-
-        String message;
+    public void saveProject(Project project) throws ProjectNotFound,Exception {
+        System.out.println(project.getDescription());
         Project isExists =projectRepo.findByProjectName(project.getProjectName());
         if(isExists != null)
             throw new ProjectNotFound("Project already exists");
         Project savedProject = projectRepo.save(project);
-
+        if(savedProject == null)
+            throw new Exception("Something went wrong while saving");
     }
 
-    public List<Project> getProjectsByCompany(String companyId){
+    public List<Project> getProjectsByCompany(UUID companyId){
         List<Project> companyProjects = projectRepo.getProjectsByCompanyId(companyId);
         return companyProjects;
     }
 
-    public void deleteProjectById(String id) throws Exception {
-        Query query1 = new Query();
-        query1.addCriteria(Criteria.where("id").is(id));
-        Project project = mongoTemplate.findOne(query1, Project.class);
-        if( project.getProjectName() != "") {
-            if(!project.getIsDeleted() ) {
-                Update update = new Update();
-                update.set("isDeleted", true);
-                UpdateResult p = mongoTemplate.updateFirst(query1, update, Project.class);
+    public void deleteProjectById(UUID id) throws Exception {
+        Optional<Project> project = projectRepo.findById(id);
+        if(project.isPresent()) {
+            Project p = project.get();
+            if (p.getProjectName() != "") {
+                if (!p.getIsDeleted()) {
+                    projectRepo.deleteById(p.getId());
+                }
             }
         }
         throw new Exception("Project Does not Exist");
     }
 
 
-    public String getCompanyId(String id) throws Exception {
-        Query query1 = new Query();
-        query1.addCriteria(Criteria.where("id").is(id));
-        Project project = mongoTemplate.findOne(query1, Project.class);
-
-        if(project != null ) {
-            if (project.getProjectName() != "") {
-                if (!project.getIsDeleted() ) {
-                    return project.getCompanyId();
+    public UUID getCompanyId(UUID id) throws Exception {
+        Optional<Project> project = projectRepo.findById(id);
+        if(project.isPresent()) {
+            Project p = project.get();
+            if (p.getProjectName() != "") {
+                if (!p.getIsDeleted() ) {
+                    return p.getCompanyId();
                 }
             }
         }
@@ -90,20 +84,21 @@ public class ProjectService {
 //        return null;
     }
 
-    public boolean addTeamToProject(String projectId, String teamId) throws Exception {
-        Project project = projectRepo.findByProjectId(projectId);
-        if(project != null){
-            List<String> teamIds = project.getTeamId();
+    public boolean addTeamToProject(UUID projectId, UUID teamId) throws Exception {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(project.isPresent()){
+            Project p = project.get();
+            List<UUID> teamIds = p.getTeamId();
             if(teamIds == null){
-                List<String> tIds = new ArrayList<>();
+                List<UUID> tIds = new ArrayList<>();
                 tIds.add(teamId);
-                project.setTeamId(tIds);
+                p.setTeamId(tIds);
             }
             else {
                 teamIds.add(teamId);
-                project.setTeamId(teamIds);
+                p.setTeamId(teamIds);
             }
-            projectRepo.save(project);
+            projectRepo.save(p);
             return true;
         }
         else{
@@ -112,18 +107,19 @@ public class ProjectService {
         }
     }
 
-    public boolean deleteTeamFromProject(String projectId, String teamId) throws Throwable {
-        Project project = projectRepo.findByProjectId(projectId);
-        if(project != null){
-            ArrayList<String> teamIds = (ArrayList<String>) project.getTeamId();
+    public boolean deleteTeamFromProject(UUID projectId, UUID teamId) throws Throwable {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(project.isPresent()){
+            Project p = project.get();
+            List<UUID> teamIds =  p.getTeamId();
             int index = teamIds.indexOf(teamId);
             if(teamIds.size()==0){
                 throw new Exception("Project does not have any Team");
             }
             if(index > -1){
                 teamIds.remove(index);
-                project.setTeamId(teamIds);
-                projectRepo.save(project);
+                p.setTeamId(teamIds);
+                projectRepo.save(p);
                 return true;
             }
             else{
@@ -136,10 +132,10 @@ public class ProjectService {
         }
     }
 
-    public List<Team> getTeamsOfProject(String projectId) throws TeamNotFound, ProjectNotFound {
-        Project project = projectRepo.findByProjectId(projectId);
-        if(project != null)
-            return teamService.getTeamsByIds(project.getTeamId());
+    public List<Team> getTeamsOfProject(UUID projectId) throws TeamNotFound, ProjectNotFound {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(project.isPresent())
+            return teamService.getTeamsByIds(project.get().getTeamId());
         else
             throw new ProjectNotFound("Project not found");
     }
@@ -148,20 +144,21 @@ public class ProjectService {
         return projectRepo.findAll();
     }
 
-    public boolean addBoardToProject(String projectId, String boardId) throws Exception {
-        Project project = projectRepo.findByProjectId(projectId);
-        if(project != null){
-            ArrayList<String> boardIds = (ArrayList<String>) project.getBoardsId();
+    public boolean addBoardToProject(UUID projectId, UUID boardId) throws Exception {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(project.isPresent()){
+            Project p = project.get();
+            List<UUID> boardIds =  p.getBoardsId();
             if(boardIds == null){
-                List<String> boards = new ArrayList<>();
+                List<UUID> boards = new ArrayList<>();
                 boards.add(boardId);
-                project.setBoardsId(boards);
+                p.setBoardsId(boards);
             }
             else {
                 boardIds.add(boardId);
-                project.setBoardsId(boardIds);
+                p.setBoardsId(boardIds);
             }
-            projectRepo.save(project);
+            projectRepo.save(p);
             return true;
         }
         else{
@@ -169,15 +166,17 @@ public class ProjectService {
         }
     }
 
-    public boolean deleteBoardFromProject(String projectId, String boardId) throws Exception {
-        Project project = projectRepo.findByProjectId(projectId);
-        if(project != null){
-            ArrayList<String> boardIds = (ArrayList<String>) project.getBoardsId();
+    public boolean deleteBoardFromProject(UUID projectId, UUID boardId) throws Exception {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(project.isPresent()){
+            Project p = project.get();
+            List<UUID> boardIds = p.getBoardsId();
             int index = boardIds.indexOf(boardId);
             if(index > -1) {
                 boardIds.remove(index);
-                project.setBoardsId(boardIds);
-                projectRepo.save(project);
+
+                p.setBoardsId(boardIds);
+                projectRepo.save(p);
                 return true;
             }
             else{
@@ -190,32 +189,38 @@ public class ProjectService {
         }
     }
 
-    public List<Board> getBoardsOfProject(String projectId)throws Exception {
-        Project project = projectRepo.findByProjectId(projectId);
-        List<Board> boardList = boardsService.getBoardsByIds(project.getBoardsId());
-        if(boardList != null)
-            return boardList;
-        else
-            throw new BoardNotFound("There are no such boards");
+    public List<Board> getBoardsOfProject(UUID projectId)throws Exception {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(project.isPresent()) {
+            Project p = project.get();
+            List<Board> boardList = boardsService.getBoardsByIds(p.getBoardsId());
+            if (boardList != null)
+                return boardList;
+            else
+                throw new BoardNotFound("There are no such boards");
+        }else{
+            throw new ProjectNotFound("Project not found");
+        }
     }
 
-    public String deleteMultipleProjects(List<String> projectIds){
+    public String deleteMultipleProjects(List<UUID> projectIds){
         projectRepo.deleteAll(projectIds);
         return "Deleted Multiple Project";
     }
 
-    public Project updateProjects(ProjectUpdateRequest projectUpdateRequest, String  projectsId) throws ProjectNotFound {
-        Project project =  projectRepo.findByProjectId(projectsId);
-        if(project == null)
+    public Project updateProjects(ProjectUpdateRequest projectUpdateRequest, UUID  projectsId) throws ProjectNotFound {
+        Optional<Project> project =  projectRepo.findById(projectsId);
+        if(!project.isPresent())
             throw new ProjectNotFound("No such Project found");
-        Helper.copyProjectDetails(project,projectUpdateRequest);
-        return projectRepo.save(project);
+        Project p = project.get();
+        Helper.copyProjectDetails(p,projectUpdateRequest);
+        return projectRepo.save(p);
     }
 
-    public Project getProject(String projectId) throws ProjectNotFound {
-        Project project = projectRepo.findByProjectId(projectId);
-        if(project != null)
-            return  project;
+    public Project getProject(UUID projectId) throws ProjectNotFound {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(project.isPresent())
+            return  project.get();
         else
             throw new ProjectNotFound("Project not found");
     }

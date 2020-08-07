@@ -1,17 +1,17 @@
 package com.nightshine.vestigate.model;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.UUID;
 
 @Component
-@Document(collection = "Team")
+@Entity
+@Table(name="Team")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,24 +21,34 @@ public class Team extends DateAudit{
 
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column
+    private UUID id;
 
     @NonNull
-    @Indexed(unique = true)
+    @Column(name="team_name")
+    @NotBlank
     private String teamName;
 
+    @Column
     private String description;
 
-    @Field
-    private List<String> teamMembers;
 
+    @Column(name="team_members")
+    @ElementCollection
+    private List<UUID> teamMembers;
+
+    @Column
     @NonNull
-    private String companyId;
+    @NotBlank
+    private UUID companyId;
 
+    @Column
     @NonNull
-    private  String projectId;
+    @NotBlank
+    private  UUID projectId;
 
-    @Field
+    @Column(name = "is_Deleted")
     private boolean isDeleted = false;
 
 
