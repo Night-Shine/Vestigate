@@ -1,9 +1,15 @@
 version: '3.3'
 
 services:
-  dbmongo:
-    image: mongo:latest
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=vestigate
+      - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
-      - "27017:27017"
+      - "5433:5432"
     volumes:
-      - ./mongodb-data:/data/db
+      - ./postgres-data:/data/db

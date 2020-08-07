@@ -5,21 +5,17 @@ import com.nightshine.vestigate.model.User;
 import com.nightshine.vestigate.payload.request.LoginRequest;
 import com.nightshine.vestigate.payload.request.SignUpRequest;
 import com.nightshine.vestigate.payload.request.UserUpdateRequest;
-import com.nightshine.vestigate.security.JwtTokenProvider;
 import com.nightshine.vestigate.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,12 +27,16 @@ public class AuthController {
     @PostMapping("/signIn")
     public ResponseEntity<Map<String, String>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         String token = authService.validateUser(loginRequest);
-        return new ResponseEntity<>(authService.authenticateUser(token), HttpStatus.CREATED);
+        Map<String, String> response = authService.authenticateUser(token);
+        if(response.get("status").equals("Authentication Successful"))
+            return new ResponseEntity<>(response, HttpStatus.FOUND);
+        else
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/signUp")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        return authService.registerUser(signUpRequest);
+        return new ResponseEntity<>(authService.registerUser(signUpRequest).getBody(), HttpStatus.CREATED);
     }
 
     @GetMapping("/allUsers")
@@ -57,13 +57,13 @@ public class AuthController {
     }
 
     @DeleteMapping("/deleteUser/{userId}")
-    public ResponseEntity<?> deleteUserById(@Valid @PathVariable String userId) {
+    public ResponseEntity<?> deleteUserById(@Valid @PathVariable UUID userId) {
         authService.removeUser(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @DeleteMapping("/deleteMultipleUsers")
-    public ResponseEntity<?> deleteMultipleUsers(@Valid @RequestBody List<String> ids) {
+    public ResponseEntity<?> deleteMultipleUsers(@Valid @RequestBody List<UUID> ids) {
         authService.removeMultipleUsers(ids);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

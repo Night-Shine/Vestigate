@@ -6,7 +6,7 @@ import com.nightshine.vestigate.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
+@EnableJpaAuditing
 @EnableSwagger2
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
@@ -98,6 +99,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/**")
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/api/polls/**", "/api/users/**")
+                .permitAll()
+                .antMatchers("/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated();
