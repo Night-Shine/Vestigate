@@ -30,10 +30,8 @@ public class Task extends DateAudit {
 	@Column
 	@ElementCollection
 	private List<SubTask> subTask=Collections.emptyList();
-	@NonNull
 	@Column
-	private String status;
-	@NonNull
+	private Status status=Status.TODO;
 	@Column
 	private String assignee;
 	@NonNull

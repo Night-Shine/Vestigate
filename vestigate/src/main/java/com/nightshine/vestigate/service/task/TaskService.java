@@ -33,7 +33,7 @@ public class TaskService {
 	}
 
 	public ResponseEntity deleteTask(UUID taskId) throws TaskNotFound {
-			Task deletedTask = repo.findByTaskId(taskId);
+		Task deletedTask = repo.findByTaskId(taskId);
 		if(deletedTask != null) {
 			List<SubTask> subTasks = deletedTask.getSubTask();
 			List<UUID> subTasksIds = new ArrayList<>();
@@ -134,6 +134,7 @@ public class TaskService {
 				if(st.getId().equals(subTaskId)) {
 					visited = true;
 					subTaskService.updateSubTask(subTaskRequest,subTaskId);
+					subTask = st;
 				}
 			}
 			task.setSubTask(subTasks);
