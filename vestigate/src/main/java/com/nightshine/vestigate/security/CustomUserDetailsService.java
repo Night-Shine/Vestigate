@@ -1,6 +1,6 @@
 package com.nightshine.vestigate.security;
 
-import com.nightshine.vestigate.model.User;
+import com.nightshine.vestigate.model.user.User;
 import com.nightshine.vestigate.repository.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -30,7 +30,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
         jsr250Enabled = true,
         prePostEnabled = true
 )
-@EnableMongoAuditing
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     CustomUserDetailsService customUserDetailsService;

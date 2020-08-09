@@ -1,7 +1,7 @@
 package com.nightshine.vestigate.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nightshine.vestigate.model.User;
+import com.nightshine.vestigate.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

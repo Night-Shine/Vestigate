@@ -1,6 +1,6 @@
 package com.nightshine.vestigate.repository.user;
 
-import com.nightshine.vestigate.model.User;
+import com.nightshine.vestigate.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

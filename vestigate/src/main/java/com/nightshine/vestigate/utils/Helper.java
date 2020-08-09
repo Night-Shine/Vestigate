@@ -1,7 +1,17 @@
 package com.nightshine.vestigate.utils;
 
-import com.nightshine.vestigate.model.*;
-import com.nightshine.vestigate.payload.request.*;
+import com.nightshine.vestigate.model.board.Board;
+import com.nightshine.vestigate.model.project.Project;
+import com.nightshine.vestigate.model.task.SubTask;
+import com.nightshine.vestigate.model.task.Task;
+import com.nightshine.vestigate.model.team.Team;
+import com.nightshine.vestigate.model.user.User;
+import com.nightshine.vestigate.payload.request.board.BoardUpdateRequest;
+import com.nightshine.vestigate.payload.request.project.ProjectUpdateRequest;
+import com.nightshine.vestigate.payload.request.task.SubTaskUpdateRequest;
+import com.nightshine.vestigate.payload.request.task.TaskUpdateRequest;
+import com.nightshine.vestigate.payload.request.team.TeamUpdateRequest;
+import com.nightshine.vestigate.payload.request.user.UserUpdateRequest;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -78,7 +88,7 @@ public class Helper {
             team.setTeamName(teamUpdate.getDescription());
     }
 
-    public static void copyBoardDetails(Board board, BoardsUpdateRequest boardsUpdate){
+    public static void copyBoardDetails(Board board, BoardUpdateRequest boardsUpdate){
         if(boardsUpdate.getAssigned() != null)
             board.setAssigned(boardsUpdate.getAssigned());
     }
