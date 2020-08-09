@@ -40,7 +40,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/updateAllBoards/{boardId}")
+    @PutMapping("/updateBoard/{boardId}")
     public ResponseEntity<Board> updateUser(@Valid @RequestBody BoardUpdateRequest boardUpdateRequest, @PathVariable UUID boardId) throws  BoardNotFound {
         Board board = boardService.updateBoard(boardUpdateRequest, boardId);
         return new ResponseEntity<>(board, HttpStatus.ACCEPTED);

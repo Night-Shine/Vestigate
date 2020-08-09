@@ -86,8 +86,8 @@ public class Helper {
     public static void copyTeamDetails(Team team, TeamUpdateRequest teamUpdate) {
         if (teamUpdate.getDescription() != null)
             team.setDescription(teamUpdate.getDescription());
-        if (teamUpdate.getTeamName() != null)
-            team.setTeamName(teamUpdate.getDescription());
+        if(teamUpdate.getTeamName() != null)
+            team.setTeamName(teamUpdate.getTeamName());
     }
   
     public static void copyBoardDetails(Board board, BoardUpdateRequest boardsUpdate){
