@@ -2,7 +2,7 @@ package com.nightshine.vestigate.service.team;
 
 
 
-import com.nightshine.vestigate.exception.project.CompanyNotFound;
+import com.nightshine.vestigate.exception.company.CompanyNotFound;
 import com.nightshine.vestigate.exception.team.TeamNotFound;
 import com.nightshine.vestigate.model.team.Team;
 import com.nightshine.vestigate.payload.request.team.TeamUpdateRequest;

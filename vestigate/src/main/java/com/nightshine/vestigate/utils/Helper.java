@@ -12,6 +12,8 @@ import com.nightshine.vestigate.payload.request.task.SubTaskUpdateRequest;
 import com.nightshine.vestigate.payload.request.task.TaskUpdateRequest;
 import com.nightshine.vestigate.payload.request.team.TeamUpdateRequest;
 import com.nightshine.vestigate.payload.request.user.UserUpdateRequest;
+import com.nightshine.vestigate.model.company.Company;
+import com.nightshine.vestigate.payload.request.company.CompanyRegistration_UpdateRequest;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -70,26 +72,35 @@ public class Helper {
             subTask.setComments(subTaskRequest.getComments());
     }
 
-    public static void copyProjectDetails(Project project, ProjectUpdateRequest projectUpdate){
-        if(projectUpdate.getProjectName() != null)
+    public static void copyProjectDetails(Project project, ProjectUpdateRequest projectUpdate) {
+        if (projectUpdate.getProjectName() != null)
             project.setProjectName(projectUpdate.getProjectName());
-        if(projectUpdate.getProjectUrl() != null)
+        if (projectUpdate.getProjectUrl() != null)
             project.setProjectUrl(projectUpdate.getProjectUrl());
-        if(projectUpdate.getDescription() != null)
+        if (projectUpdate.getDescription() != null)
             project.setDescription(projectUpdate.getDescription());
-        if(projectUpdate.getImage() != null)
+        if (projectUpdate.getImage() != null)
             project.setImage(projectUpdate.getImage());
     }
 
-    public static void copyTeamDetails(Team team, TeamUpdateRequest teamUpdate){
-        if(teamUpdate.getDescription() != null)
+    public static void copyTeamDetails(Team team, TeamUpdateRequest teamUpdate) {
+        if (teamUpdate.getDescription() != null)
             team.setDescription(teamUpdate.getDescription());
         if(teamUpdate.getTeamName() != null)
             team.setTeamName(teamUpdate.getTeamName());
     }
-
+  
     public static void copyBoardDetails(Board board, BoardUpdateRequest boardsUpdate){
         if(boardsUpdate.getAssigned() != null)
             board.setAssigned(boardsUpdate.getAssigned());
+    }
+
+    public static void copyCompanyDetails (Company company, CompanyRegistration_UpdateRequest companyRegistrationUploadRequest){
+        if (companyRegistrationUploadRequest.getCompanyName() != null)
+            company.setCompanyName(companyRegistrationUploadRequest.getCompanyName());
+        if (companyRegistrationUploadRequest.getDescription() != null)
+            company.setDescription(companyRegistrationUploadRequest.getDescription());
+        if (companyRegistrationUploadRequest.getProjects() != null)
+            company.setProjects(companyRegistrationUploadRequest.getProjects());
     }
 }
