@@ -68,7 +68,8 @@ public class ProjectService {
                 }
             }
         }
-        throw new Exception("Project Does not Exist");
+        else
+            throw new Exception("Project Does not Exist");
     }
 
 

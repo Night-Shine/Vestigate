@@ -64,7 +64,7 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/updateAllProjects/{projectId}")
+    @PutMapping("/updateProject/{projectId}")
     public ResponseEntity<Project> updateProjects(@Valid @RequestBody ProjectUpdateRequest projectUpdateRequest, @PathVariable UUID projectId) throws ProjectNotFound {
         Project project = projectService.updateProjects(projectUpdateRequest, projectId);
         return new ResponseEntity<>(project, HttpStatus.ACCEPTED);
@@ -73,10 +73,5 @@ public class ProjectController {
     @GetMapping("/getProjectInfo")
     public ResponseEntity<Project> getProjectInfo(@RequestParam UUID projectId) throws ProjectNotFound {
         return ResponseEntity.ok(projectService.getProject(projectId));
-    }
-
-    @GetMapping("/getAllP")
-    public ResponseEntity<List<Project>> getALL(){
-        return ResponseEntity.ok(projectService.getAll());
     }
 }
