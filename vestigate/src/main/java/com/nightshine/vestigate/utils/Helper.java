@@ -89,9 +89,9 @@ public class Helper {
         if (teamUpdate.getTeamName() != null)
             team.setTeamName(teamUpdate.getDescription());
     }
-
-    public static void copyBoardDetails(Board board, BoardUpdateRequest boardsUpdate) {
-        if (boardsUpdate.getAssigned() != null)
+  
+    public static void copyBoardDetails(Board board, BoardUpdateRequest boardsUpdate){
+        if(boardsUpdate.getAssigned() != null)
             board.setAssigned(boardsUpdate.getAssigned());
     }
 
