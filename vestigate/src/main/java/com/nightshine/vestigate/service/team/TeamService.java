@@ -5,6 +5,7 @@ package com.nightshine.vestigate.service.team;
 import com.nightshine.vestigate.exception.company.CompanyNotFound;
 import com.nightshine.vestigate.exception.project.ProjectNotFound;
 import com.nightshine.vestigate.exception.team.TeamNotFound;
+import com.nightshine.vestigate.model.board.Board;
 import com.nightshine.vestigate.model.project.Project;
 import com.nightshine.vestigate.model.team.Team;
 import com.nightshine.vestigate.payload.request.team.TeamUpdateRequest;
@@ -136,12 +137,24 @@ public class TeamService {
         return new ResponseEntity(savedTeam, HttpStatus.CREATED);
     }
 
-    public void deleteMultipleTeams(List<UUID> teamIds,UUID projectId) throws Throwable {
-
+    public ResponseEntity<?> deleteMultipleTeams(List<UUID> teamIds,UUID projectId) throws Throwable {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(!project.isPresent())
+            return new ResponseEntity(new ApiResponse(false, "Project does not exists!"),
+                    HttpStatus.BAD_REQUEST);
+        for(UUID bid:teamIds) {
+            Optional<Team> team = teamRepository.findById(bid);
+            if(!team.isPresent()) {
+                return new ResponseEntity(new ApiResponse(false, "Board does not exists!"),
+                        HttpStatus.BAD_REQUEST);
+            }
+        }
         teamRepository.deleteAll(teamIds);
         for(UUID id : teamIds){
             projectService.deleteTeamFromProject(projectId,id);
         }
+        return new ResponseEntity(new ApiResponse(true, "Teams deleted successfully"),
+                HttpStatus.BAD_REQUEST);
 
     }
 

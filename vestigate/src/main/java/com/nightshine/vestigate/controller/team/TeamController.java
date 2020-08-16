@@ -49,8 +49,7 @@ public class TeamController {
 
     @DeleteMapping("/deleteMultipleTeams")
     public ResponseEntity<?> deleteMultipleTeams(@Valid @RequestBody List<UUID> ids,@RequestParam UUID projectId) throws Throwable {
-        teamService.deleteMultipleTeams(ids,projectId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return teamService.deleteMultipleTeams(ids,projectId);
     }
 
     @PutMapping("/updateTeam/{teamId}")

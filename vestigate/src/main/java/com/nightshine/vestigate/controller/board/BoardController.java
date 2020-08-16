@@ -22,21 +22,16 @@ public class BoardController {
     @PostMapping("/addBoard")
     private ResponseEntity<?> addBoard(@RequestBody Board board, @RequestParam UUID projectId) throws Throwable {
         return boardService.addBoards(projectId,board);
-
     }
-
 
     @DeleteMapping("/deleteBoard")
     private ResponseEntity<?> deleteTeam(@RequestParam UUID projectId,@RequestParam UUID boardId) throws Exception {
-
         return boardService.deleteBoard(projectId,boardId);
     }
 
-//    @PutMapping("/")
     @DeleteMapping("/deleteMultipleBoards")
     public ResponseEntity<?> deleteMultipleBoards(@Valid @RequestBody List<UUID> ids,@RequestParam UUID projectId) throws Exception {
-        boardService.deleteMultipleBoards(projectId,ids);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return  boardService.deleteMultipleBoards(projectId,ids);
     }
 
     @PutMapping("/updateBoard/{boardId}")

@@ -28,23 +28,17 @@ public class ProjectController {
     @PostMapping("/addProject")
     private ResponseEntity<?> addProject(@RequestBody Project project, @RequestParam UUID companyId) throws Exception {
         return projectService.saveProject(project,companyId);
-
     }
 
     @GetMapping("/getCompanyProjects")
     private ResponseEntity<List<Project>> getProjectsOfCompany(@RequestParam("Id") UUID id){
-
         return ResponseEntity.ok(projectService.getProjectsByCompany(id)) ;
     }
 
     @DeleteMapping("/deleteProject")
     private ResponseEntity<?> deleteProject(@RequestParam("id") UUID id) throws Exception {
-
         return projectService.deleteProjectById(id);
-
     }
-
-
 
 
     @GetMapping("/getTeamsOfProject")
@@ -59,8 +53,7 @@ public class ProjectController {
 
     @DeleteMapping("/deleteMultipleProjects")
     public ResponseEntity<?> deleteMultipleProjects(@RequestBody List<UUID> ids) {
-        projectService.deleteMultipleProjects(ids);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return projectService.deleteMultipleProjects(ids);
     }
 
     @PutMapping("/updateProject/{projectId}")

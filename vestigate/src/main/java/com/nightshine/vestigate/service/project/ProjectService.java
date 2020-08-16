@@ -241,9 +241,17 @@ public class ProjectService {
         }
     }
 
-    public String deleteMultipleProjects(List<UUID> projectIds){
+    public ResponseEntity<?>  deleteMultipleProjects(List<UUID> projectIds){
+        for(UUID bid:projectIds) {
+            Optional<Project> project = projectRepo.findById(bid);
+            if(!project.isPresent()) {
+                return new ResponseEntity(new ApiResponse(false, "Projects does not exists!"),
+                        HttpStatus.BAD_REQUEST);
+            }
+        }
         projectRepo.deleteAll(projectIds);
-        return "Deleted Multiple Project";
+        return new ResponseEntity(new ApiResponse(true, "Projects deleted successfully"),
+                HttpStatus.OK);
     }
 
     public ResponseEntity<?> updateProjects(ProjectUpdateRequest projectUpdateRequest, UUID  projectsId) throws ProjectNotFound {

@@ -100,12 +100,24 @@ public class BoardService {
 
     }
 
-    public String deleteMultipleBoards(UUID projectId,List<UUID > boardIds) throws Exception {
+    public ResponseEntity<?> deleteMultipleBoards(UUID projectId,List<UUID > boardIds) throws Exception {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(!project.isPresent())
+            return new ResponseEntity(new ApiResponse(false, "Project does not exists!"),
+                    HttpStatus.BAD_REQUEST);
+        for(UUID bid:boardIds) {
+            Optional<Board> board = boardRepository.findById(bid);
+            if(!board.isPresent()) {
+                return new ResponseEntity(new ApiResponse(false, "Board does not exists!"),
+                        HttpStatus.BAD_REQUEST);
+            }
+        }
         boardRepository.deleteAll(boardIds);
         for(UUID id:boardIds){
             projectService.deleteBoardFromProject(projectId,id);
         }
-        return "Deleted Multiple the Board";
+        return new ResponseEntity(new ApiResponse(true, "Boards deleted successfully"),
+                HttpStatus.OK);
     }
 
     public ResponseEntity<?> updateBoard(BoardUpdateRequest boardUpdateRequest, UUID  boardId) throws BoardNotFound {
