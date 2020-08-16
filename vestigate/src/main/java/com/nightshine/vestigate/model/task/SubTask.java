@@ -22,10 +22,8 @@ public class SubTask extends DateAudit {
     private String title;
     @Column
     private String description;
-    @NonNull
     @Column
-    private String status;
-    @NonNull
+    private Status status=Status.TODO;
     @Column
     private String assignee;
     @NonNull

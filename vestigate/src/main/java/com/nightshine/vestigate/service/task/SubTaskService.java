@@ -27,7 +27,7 @@ public class SubTaskService {
 	}
 
 	public ResponseEntity deleteSubTask(UUID subTaskId) throws TaskNotFound {
-			SubTask deletedTask = repo.findBySubTaskId(subTaskId);
+		SubTask deletedTask = repo.findBySubTaskId(subTaskId);
 		if(deletedTask != null) {
 			repo.deleteById(subTaskId);
 			return new ResponseEntity(HttpStatus.OK);
@@ -36,7 +36,7 @@ public class SubTaskService {
 	}
 
 	public Optional<SubTask> getSubTask(UUID subTaskId) throws TaskNotFound {
-			Optional<SubTask> subTask = repo.findByIdOptional(subTaskId);
+		Optional<SubTask> subTask = repo.findByIdOptional(subTaskId);
 		if(subTask != null){
 			return subTask;
 		}

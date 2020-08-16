@@ -53,6 +53,8 @@ public class Helper {
             task.setSubTask(taskRequest.getSubTask());
         if (taskRequest.getComments() != null)
             task.setComments(taskRequest.getComments());
+        if (taskRequest.getStatus() != null)
+            task.setStatus(taskRequest.getStatus());
     }
 
     public static void copySubTaskDetails(SubTask subTask, SubTaskUpdateRequest subTaskRequest) {
@@ -70,6 +72,8 @@ public class Helper {
             subTask.setStoryPoints(subTaskRequest.getStoryPoints());
         if (subTaskRequest.getComments() != null)
             subTask.setComments(subTaskRequest.getComments());
+        if (subTaskRequest.getStatus() != null)
+            subTask.setStatus(subTaskRequest.getStatus());
     }
 
     public static void copyProjectDetails(Project project, ProjectUpdateRequest projectUpdate) {

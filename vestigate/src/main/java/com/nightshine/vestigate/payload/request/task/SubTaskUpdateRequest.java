@@ -1,6 +1,7 @@
 package com.nightshine.vestigate.payload.request.task;
 
 import com.nightshine.vestigate.model.task.Priority;
+import com.nightshine.vestigate.model.task.Status;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +10,7 @@ import lombok.Setter;
 public class SubTaskUpdateRequest {
     private String title;
     private String description;
-    private String status;
+    private Status status;
     private String assignee;
     private String reporter;
     private String comments;
