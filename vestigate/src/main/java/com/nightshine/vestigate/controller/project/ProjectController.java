@@ -31,8 +31,8 @@ public class ProjectController {
     }
 
     @GetMapping("/getCompanyProjects")
-    private ResponseEntity<List<Project>> getProjectsOfCompany(@RequestParam("Id") UUID id){
-        return ResponseEntity.ok(projectService.getProjectsByCompany(id)) ;
+    private ResponseEntity<?> getProjectsOfCompany(@RequestParam("Id") UUID id){
+        return projectService.getProjectsByCompany(id);
     }
 
     @DeleteMapping("/deleteProject")

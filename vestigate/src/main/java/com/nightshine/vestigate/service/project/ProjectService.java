@@ -72,9 +72,14 @@ public class ProjectService {
         }
     }
 
-    public List<Project> getProjectsByCompany(UUID companyId){
+    public ResponseEntity<?> getProjectsByCompany(UUID companyId){
+        Optional<Company> company = companyRepository.findById(companyId);
+        if(!company.isPresent()){
+            return new ResponseEntity(new ApiResponse(false, "Company does not exist!"),
+                    HttpStatus.BAD_REQUEST);
+        }
         List<Project> companyProjects = projectRepo.getProjectsByCompanyId(companyId);
-        return companyProjects;
+        return new ResponseEntity(companyProjects, HttpStatus.OK);
     }
 
     public ResponseEntity<?> deleteProjectById(UUID id) throws Exception {
@@ -175,10 +180,6 @@ public class ProjectService {
         else
             return new ResponseEntity(new ApiResponse(false, "Project does not  exists!"),
                     HttpStatus.BAD_REQUEST);
-    }
-
-    public List<Project> getAll(){
-        return projectRepo.findAll();
     }
 
     public ResponseEntity<?>  addBoardToProject(UUID projectId, UUID boardId) throws Exception {

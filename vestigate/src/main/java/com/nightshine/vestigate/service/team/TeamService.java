@@ -6,6 +6,7 @@ import com.nightshine.vestigate.exception.company.CompanyNotFound;
 import com.nightshine.vestigate.exception.project.ProjectNotFound;
 import com.nightshine.vestigate.exception.team.TeamNotFound;
 import com.nightshine.vestigate.model.board.Board;
+import com.nightshine.vestigate.model.company.Company;
 import com.nightshine.vestigate.model.project.Project;
 import com.nightshine.vestigate.model.team.Team;
 import com.nightshine.vestigate.payload.request.team.TeamUpdateRequest;
@@ -37,7 +38,7 @@ public class TeamService {
     private ProjectRepository projectRepo;
 
 
-    public ResponseEntity<?> saveTeam1(Team team, UUID projectId) throws Throwable,Exception {
+    public ResponseEntity<?> saveTeam(Team team, UUID projectId) throws Throwable,Exception {
         Optional<Project> project = projectRepo.findById(projectId);
         if(!project.isPresent()){
             return new ResponseEntity(new ApiResponse(false, "Project does not exists!"),
@@ -62,24 +63,34 @@ public class TeamService {
         }
     }
 
-    public List<Team> getTeamsByProject(UUID projectId){
-        return teamRepository.getTeamsByProject(projectId);
+    public ResponseEntity<?> getTeamsByProject(UUID projectId){
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(!project.isPresent()){
+            return new ResponseEntity(new ApiResponse(false, "Project does not exist!"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity(teamRepository.getTeamsByProject(projectId), HttpStatus.OK);
     }
 
-    public List<Team> getTeamsByCompany(UUID projectId) throws Throwable {
+    public ResponseEntity<?> getTeamsByCompany(UUID projectId) throws Throwable {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(!project.isPresent()){
+            return new ResponseEntity(new ApiResponse(false, "Project does not exist!"),
+                    HttpStatus.BAD_REQUEST);
+        }
         UUID companyId = (UUID) projectService.getCompanyId(projectId).getBody();
         final List<Team> emptyList = new ArrayList<>();
         if(companyId == null)
-            return emptyList;
+            return new ResponseEntity(emptyList, HttpStatus.OK);
         List<Team> teamsList = teamRepository.getTeamsByCompany(companyId);
         if(teamsList != null) {
             if(teamsList.size() != 0)
-                return teamsList;
+                return new ResponseEntity(teamsList, HttpStatus.OK);
             else
-                return emptyList;
+                return new ResponseEntity(emptyList, HttpStatus.OK);
         }
         else {
-            return emptyList;
+            return new ResponseEntity(emptyList, HttpStatus.OK);
         }
     }
 

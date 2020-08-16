@@ -23,17 +23,17 @@ public class TeamController {
 
     @PostMapping("/addTeam")
     private ResponseEntity<?> addTeam(@RequestBody Team team, @RequestParam UUID projectId) throws Throwable {
-        return teamService.saveTeam1(team,projectId);
+        return teamService.saveTeam(team,projectId);
     }
 
     @GetMapping("/getProjectTeams")
-    private ResponseEntity<List<Team>> getTeamsOfProject(@RequestParam UUID projectId ){
+    private ResponseEntity<?> getTeamsOfProject(@RequestParam UUID projectId ){
         return ResponseEntity.ok(teamService.getTeamsByProject(projectId));
     }
 
     @GetMapping("/getCompanyTeams")
-    private ResponseEntity<List<Team>> getTeamsOfCompany(@RequestParam UUID projectId) throws Throwable {
-        return ResponseEntity.ok(teamService.getTeamsByCompany(projectId));
+    private ResponseEntity<?> getTeamsOfCompany(@RequestParam UUID projectId) throws Throwable {
+        return teamService.getTeamsByCompany(projectId);
     }
 
     @GetMapping("/getAllTeams")
