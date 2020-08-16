@@ -30,12 +30,12 @@ public class Project extends DateAudit {
     @Column
     @NonNull
     @NotBlank
-    public UUID companyId;
+    private  UUID companyId;
 
     @Column
     @NonNull
     @NotBlank
-    public String projectName;
+    private  String projectName;
 
     @Column
     private String description;
@@ -44,7 +44,7 @@ public class Project extends DateAudit {
     private String projectUrl;
 
     @Column
-    public String image;
+    private  String image;
 
     @Column(name = "is_Deleted")
     private Boolean isDeleted = false;

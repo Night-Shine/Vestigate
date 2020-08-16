@@ -23,9 +23,7 @@ public class TeamController {
 
     @PostMapping("/addTeam")
     private ResponseEntity<?> addTeam(@RequestBody Team team, @RequestParam UUID projectId) throws Throwable {
-        teamService.saveTeam1(team,projectId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
+        return teamService.saveTeam1(team,projectId);
     }
 
     @GetMapping("/getProjectTeams")
@@ -45,8 +43,8 @@ public class TeamController {
 
     @DeleteMapping("/deleteTeam")
     private ResponseEntity<?> deleteTeam(@RequestParam UUID projectId,@RequestParam UUID teamId) throws Throwable {
-         teamService.deleteTeam(projectId,teamId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        return teamService.deleteTeam(projectId,teamId);
     }
 
     @DeleteMapping("/deleteMultipleTeams")
@@ -56,8 +54,9 @@ public class TeamController {
     }
 
     @PutMapping("/updateTeam/{teamId}")
-    public ResponseEntity<Team> updateTeams(@Valid @RequestBody TeamUpdateRequest teamUpdateRequest, @PathVariable UUID teamId) throws TeamNotFound {
-        Team team = teamService.updateTeam(teamUpdateRequest, teamId);
-        return new ResponseEntity<>(team, HttpStatus.ACCEPTED);
+    public ResponseEntity<?> updateTeams(@Valid @RequestBody TeamUpdateRequest teamUpdateRequest, @PathVariable UUID teamId) throws TeamNotFound {
+        return teamService.updateTeam(teamUpdateRequest, teamId);
     }
+
+
 }

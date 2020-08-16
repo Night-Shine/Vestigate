@@ -21,16 +21,15 @@ public class BoardController {
 
     @PostMapping("/addBoard")
     private ResponseEntity<?> addBoard(@RequestBody Board board, @RequestParam UUID projectId) throws Throwable {
-         boardService.addBoards(projectId,board);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return boardService.addBoards(projectId,board);
 
     }
 
 
     @DeleteMapping("/deleteBoard")
     private ResponseEntity<?> deleteTeam(@RequestParam UUID projectId,@RequestParam UUID boardId) throws Exception {
-        boardService.deleteBoard(projectId,boardId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        return boardService.deleteBoard(projectId,boardId);
     }
 
 //    @PutMapping("/")
@@ -41,8 +40,7 @@ public class BoardController {
     }
 
     @PutMapping("/updateBoard/{boardId}")
-    public ResponseEntity<Board> updateUser(@Valid @RequestBody BoardUpdateRequest boardUpdateRequest, @PathVariable UUID boardId) throws  BoardNotFound {
-        Board board = boardService.updateBoard(boardUpdateRequest, boardId);
-        return new ResponseEntity<>(board, HttpStatus.ACCEPTED);
+    public ResponseEntity<?> updateUser(@Valid @RequestBody BoardUpdateRequest boardUpdateRequest, @PathVariable UUID boardId) throws  BoardNotFound {
+        return boardService.updateBoard(boardUpdateRequest, boardId);
     }
 }

@@ -26,9 +26,8 @@ public class ProjectController {
 
     @JsonAnyGetter
     @PostMapping("/addProject")
-    private ResponseEntity<?> addProject(@RequestBody Project project) throws Exception {
-         projectService.saveProject(project);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    private ResponseEntity<?> addProject(@RequestBody Project project, @RequestParam UUID companyId) throws Exception {
+        return projectService.saveProject(project,companyId);
 
     }
 
@@ -40,8 +39,8 @@ public class ProjectController {
 
     @DeleteMapping("/deleteProject")
     private ResponseEntity<?> deleteProject(@RequestParam("id") UUID id) throws Exception {
-         projectService.deleteProjectById(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        return projectService.deleteProjectById(id);
 
     }
 
@@ -50,12 +49,12 @@ public class ProjectController {
 
     @GetMapping("/getTeamsOfProject")
     private ResponseEntity<List<Team>> getAllTeamsOfProject(@RequestParam UUID projectId) throws TeamNotFound, ProjectNotFound {
-        return ResponseEntity.ok(projectService.getTeamsOfProject(projectId));
+        return (ResponseEntity<List<Team>>) projectService.getTeamsOfProject(projectId);
     }
 
     @GetMapping("/getBoardsOfProject")
-    private ResponseEntity<List<Board>> getAllBoardsOfProject(@RequestParam UUID projectId) throws Exception {
-        return ResponseEntity.ok(projectService.getBoardsOfProject(projectId));
+    private ResponseEntity<?> getAllBoardsOfProject(@RequestParam UUID projectId) throws Exception {
+        return projectService.getBoardsOfProject(projectId);
     }
 
     @DeleteMapping("/deleteMultipleProjects")
@@ -65,13 +64,12 @@ public class ProjectController {
     }
 
     @PutMapping("/updateProject/{projectId}")
-    public ResponseEntity<Project> updateProjects(@Valid @RequestBody ProjectUpdateRequest projectUpdateRequest, @PathVariable UUID projectId) throws ProjectNotFound {
-        Project project = projectService.updateProjects(projectUpdateRequest, projectId);
-        return new ResponseEntity<>(project, HttpStatus.ACCEPTED);
+    public ResponseEntity<?> updateProjects(@Valid @RequestBody ProjectUpdateRequest projectUpdateRequest, @PathVariable UUID projectId) throws ProjectNotFound {
+        return projectService.updateProjects(projectUpdateRequest, projectId);
     }
 
     @GetMapping("/getProjectInfo")
-    public ResponseEntity<Project> getProjectInfo(@RequestParam UUID projectId) throws ProjectNotFound {
-        return ResponseEntity.ok(projectService.getProject(projectId));
+    public ResponseEntity<?> getProjectInfo(@RequestParam UUID projectId) throws ProjectNotFound {
+        return projectService.getProject(projectId);
     }
 }
