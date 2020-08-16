@@ -1,5 +1,6 @@
 package com.nightshine.vestigate.service.task;
 
+import com.nightshine.vestigate.exception.generic.BadRequestException;
 import com.nightshine.vestigate.exception.task.TaskNotFound;
 import com.nightshine.vestigate.model.task.SubTask;
 import com.nightshine.vestigate.payload.request.task.SubTaskUpdateRequest;
@@ -23,39 +24,54 @@ public class SubTaskService {
 	SubTaskRepository repo;
 
 	public SubTask addSubTask(SubTask subTask) {
-			return repo.save(subTask);
+		return repo.save(subTask);
 	}
 
 	public ResponseEntity deleteSubTask(UUID subTaskId) throws TaskNotFound {
-		SubTask deletedTask = repo.findBySubTaskId(subTaskId);
-		if(deletedTask != null) {
-			repo.deleteById(subTaskId);
-			return new ResponseEntity(HttpStatus.OK);
+		try {
+			SubTask deletedTask = repo.findBySubTaskId(subTaskId);
+			if (deletedTask != null) {
+				repo.deleteById(subTaskId);
+				return new ResponseEntity(HttpStatus.OK);
+			} else throw new TaskNotFound("No subTask available to delete");
+		}catch(TaskNotFound taskNotFound){
+			return new ResponseEntity(HttpStatus.NOT_FOUND);
+		}catch(Exception exception){
+			return new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
 		}
-		else throw new TaskNotFound("No subTask available to delete");
 	}
 
-	public Optional<SubTask> getSubTask(UUID subTaskId) throws TaskNotFound {
-		Optional<SubTask> subTask = repo.findByIdOptional(subTaskId);
-		if(subTask != null){
-			return subTask;
+	public ResponseEntity<SubTask> updateSubTask(SubTaskUpdateRequest subTaskUpdateRequest, UUID subTaskId) throws TaskNotFound {
+		try {
+			Optional<SubTask> optionalSubTask = repo.findByIdOptional(subTaskId);
+			if (!optionalSubTask.isPresent() || !repo.existsById(subTaskId)) {
+				throw new TaskNotFound("SubTask doesn't exists!");
+			}
+			SubTask subTask = optionalSubTask.get();
+			Helper.copySubTaskDetails(subTask, subTaskUpdateRequest);
+			return new ResponseEntity<>(repo.save(subTask),HttpStatus.ACCEPTED);
+		}catch(TaskNotFound taskNotFound){
+			return new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
+		}catch(Exception exception){
+			return new ResponseEntity(HttpStatus.BAD_REQUEST);
 		}
-		else throw new TaskNotFound("No subTask is available");
+	}
+
+	public ResponseEntity<Optional<SubTask>> getSubTask(UUID subTaskId) throws TaskNotFound {
+		try {
+			Optional<SubTask> subTask = repo.findByIdOptional(subTaskId);
+			if (subTask != null) {
+				return new ResponseEntity<>(subTask,HttpStatus.FOUND);
+			} else throw new TaskNotFound("No subTask is available");
+		}catch(TaskNotFound taskNotFound){
+			return new ResponseEntity(HttpStatus.NOT_FOUND);
+		}catch(Exception exception){
+			return new ResponseEntity(HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	public List<SubTask> getAllSubTasks() {
 			return repo.findAllSubTasks();
-	}
-
-
-	public SubTask updateSubTask(SubTaskUpdateRequest subTaskUpdateRequest, UUID subTaskId) throws TaskNotFound {
-		Optional<SubTask> optionalSubTask = repo.findByIdOptional(subTaskId);
-		if (!optionalSubTask.isPresent() || !repo.existsById(subTaskId)) {
-			throw new TaskNotFound("SubTask doesn't exists!");
-		}
-		SubTask subTask = optionalSubTask.get();
-		Helper.copySubTaskDetails(subTask, subTaskUpdateRequest);
-		return repo.save(subTask);
 	}
 
 	public ResponseEntity deleteMultipleSubTasks(List<UUID> subTaskIds){
