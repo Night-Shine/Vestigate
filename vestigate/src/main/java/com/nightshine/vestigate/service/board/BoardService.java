@@ -4,6 +4,7 @@ import com.nightshine.vestigate.exception.board.BoardNotFound;
 import com.nightshine.vestigate.exception.project.ProjectNotFound;
 import com.nightshine.vestigate.model.board.Board;
 import com.nightshine.vestigate.model.project.Project;
+import com.nightshine.vestigate.model.team.Team;
 import com.nightshine.vestigate.payload.request.board.BoardUpdateRequest;
 import com.nightshine.vestigate.payload.response.ApiResponse;
 import com.nightshine.vestigate.repository.board.BoardRepository;
@@ -17,10 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Transactional
 @Service
@@ -105,12 +103,22 @@ public class BoardService {
         if(!project.isPresent())
             return new ResponseEntity(new ApiResponse(false, "Project does not exists!"),
                     HttpStatus.BAD_REQUEST);
-        for(UUID bid:boardIds) {
+        List<Boolean> isExists =new ArrayList<Boolean>(Arrays.asList(new Boolean[boardIds.size()]));
+        Collections.fill(isExists, Boolean.TRUE);
+
+        boardIds.forEach(bid -> {
             Optional<Board> board = boardRepository.findById(bid);
-            if(!board.isPresent()) {
-                return new ResponseEntity(new ApiResponse(false, "Board does not exists!"),
-                        HttpStatus.BAD_REQUEST);
+            if (!board.isPresent()) {
+                int index = boardIds.indexOf(bid);
+                isExists.set(index,false);
             }
+        });
+
+        Boolean f = false;
+        if(isExists.indexOf(f) > 0) {
+            String msg =  (isExists.indexOf(f)+1) + " Board does not exists! " ;
+            return new ResponseEntity(new ApiResponse(false, msg),
+                    HttpStatus.BAD_REQUEST);
         }
         boardRepository.deleteAll(boardIds);
         for(UUID id:boardIds){

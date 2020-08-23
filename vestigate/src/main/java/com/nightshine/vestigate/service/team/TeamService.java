@@ -153,12 +153,23 @@ public class TeamService {
         if(!project.isPresent())
             return new ResponseEntity(new ApiResponse(false, "Project does not exists!"),
                     HttpStatus.BAD_REQUEST);
-        for(UUID bid:teamIds) {
+
+        List<Boolean> isExists =new ArrayList<Boolean>(Arrays.asList(new Boolean[teamIds.size()]));
+        Collections.fill(isExists, Boolean.TRUE);
+
+        teamIds.forEach(bid -> {
             Optional<Team> team = teamRepository.findById(bid);
-            if(!team.isPresent()) {
-                return new ResponseEntity(new ApiResponse(false, "Board does not exists!"),
-                        HttpStatus.BAD_REQUEST);
+            if (!team.isPresent()) {
+                int index = teamIds.indexOf(bid);
+                isExists.set(index,false);
             }
+        });
+
+        Boolean f = false;
+        if(isExists.indexOf(f) > 0) {
+            String msg =  (isExists.indexOf(f)+1) + " Team does not exists! " ;
+            return new ResponseEntity(new ApiResponse(false, msg),
+                    HttpStatus.BAD_REQUEST);
         }
         teamRepository.deleteAll(teamIds);
         for(UUID id : teamIds){

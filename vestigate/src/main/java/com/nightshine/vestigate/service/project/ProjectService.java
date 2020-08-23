@@ -23,10 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Transactional
 @Service
@@ -243,13 +240,25 @@ public class ProjectService {
     }
 
     public ResponseEntity<?>  deleteMultipleProjects(List<UUID> projectIds){
-        for(UUID bid:projectIds) {
+
+        List<Boolean> isExists =new ArrayList<Boolean>(Arrays.asList(new Boolean[projectIds.size()]));
+        Collections.fill(isExists, Boolean.TRUE);
+
+        projectIds.forEach(bid -> {
             Optional<Project> project = projectRepo.findById(bid);
-            if(!project.isPresent()) {
-                return new ResponseEntity(new ApiResponse(false, "Projects does not exists!"),
-                        HttpStatus.BAD_REQUEST);
+            if (!project.isPresent()) {
+                int index = projectIds.indexOf(bid);
+                isExists.set(index,false);
             }
+        });
+
+        Boolean f = false;
+        if(isExists.indexOf(f) > 0) {
+            String msg =  (isExists.indexOf(f)+1) + " Project does not exists! " ;
+            return new ResponseEntity(new ApiResponse(false, msg),
+                    HttpStatus.BAD_REQUEST);
         }
+
         projectRepo.deleteAll(projectIds);
         return new ResponseEntity(new ApiResponse(true, "Projects deleted successfully"),
                 HttpStatus.OK);
@@ -265,7 +274,7 @@ public class ProjectService {
         return new ResponseEntity(projectRepo.save(p), HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> getProject(UUID projectId) throws ProjectNotFound {
+    public ResponseEntity<?> getProject(UUID projectId) {
         Optional<Project> project = projectRepo.findById(projectId);
         if(project.isPresent())
             return new ResponseEntity(project.get(), HttpStatus.CREATED);
