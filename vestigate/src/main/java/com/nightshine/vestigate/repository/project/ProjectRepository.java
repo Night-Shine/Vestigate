@@ -19,8 +19,10 @@ public interface ProjectRepository extends JpaRepository<Project,UUID> {
     @Query("SELECT P FROM Project P WHERE P.isDeleted=false and P.id=:projectId")
     Optional<Project> findById(UUID projectId);
 
-    @Query("SELECT P FROM Project P WHERE P.isDeleted=false and P.projectName=:pName")
-    Project findByProjectName(String pName);
+    @Query("SELECT P FROM Project P WHERE P.isDeleted=false and P.projectName=:pName and P.companyId=:companyId")
+    Project findByProjectName(String pName,UUID companyId);
+
+
 
     @Modifying
     @Query("UPDATE Project c SET c.isDeleted=true WHERE c.id=:id")

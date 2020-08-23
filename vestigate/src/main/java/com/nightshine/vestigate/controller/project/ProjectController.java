@@ -26,52 +26,43 @@ public class ProjectController {
 
     @JsonAnyGetter
     @PostMapping("/addProject")
-    private ResponseEntity<?> addProject(@RequestBody Project project) throws Exception {
-         projectService.saveProject(project);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
+    private ResponseEntity<?> addProject(@RequestBody Project project, @RequestParam UUID companyId) throws Exception {
+        return projectService.saveProject(project,companyId);
     }
 
     @GetMapping("/getCompanyProjects")
-    private ResponseEntity<List<Project>> getProjectsOfCompany(@RequestParam("Id") UUID id){
-
-        return ResponseEntity.ok(projectService.getProjectsByCompany(id)) ;
+    private ResponseEntity<?> getProjectsOfCompany(@RequestParam("Id") UUID id){
+        return projectService.getProjectsByCompany(id);
     }
 
     @DeleteMapping("/deleteProject")
     private ResponseEntity<?> deleteProject(@RequestParam("id") UUID id) throws Exception {
-         projectService.deleteProjectById(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
+        return projectService.deleteProjectById(id);
     }
-
-
 
 
     @GetMapping("/getTeamsOfProject")
     private ResponseEntity<List<Team>> getAllTeamsOfProject(@RequestParam UUID projectId) throws TeamNotFound, ProjectNotFound {
-        return ResponseEntity.ok(projectService.getTeamsOfProject(projectId));
+        return (ResponseEntity<List<Team>>) projectService.getTeamsOfProject(projectId);
     }
 
     @GetMapping("/getBoardsOfProject")
-    private ResponseEntity<List<Board>> getAllBoardsOfProject(@RequestParam UUID projectId) throws Exception {
-        return ResponseEntity.ok(projectService.getBoardsOfProject(projectId));
+    private ResponseEntity<?> getAllBoardsOfProject(@RequestParam UUID projectId) throws Exception {
+        return projectService.getBoardsOfProject(projectId);
     }
 
     @DeleteMapping("/deleteMultipleProjects")
     public ResponseEntity<?> deleteMultipleProjects(@RequestBody List<UUID> ids) {
-        projectService.deleteMultipleProjects(ids);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return projectService.deleteMultipleProjects(ids);
     }
 
     @PutMapping("/updateProject/{projectId}")
-    public ResponseEntity<Project> updateProjects(@Valid @RequestBody ProjectUpdateRequest projectUpdateRequest, @PathVariable UUID projectId) throws ProjectNotFound {
-        Project project = projectService.updateProjects(projectUpdateRequest, projectId);
-        return new ResponseEntity<>(project, HttpStatus.ACCEPTED);
+    public ResponseEntity<?> updateProjects(@Valid @RequestBody ProjectUpdateRequest projectUpdateRequest, @PathVariable UUID projectId) throws ProjectNotFound {
+        return projectService.updateProjects(projectUpdateRequest, projectId);
     }
 
     @GetMapping("/getProjectInfo")
-    public ResponseEntity<Project> getProjectInfo(@RequestParam UUID projectId) throws ProjectNotFound {
-        return ResponseEntity.ok(projectService.getProject(projectId));
+    public ResponseEntity<?> getProjectInfo(@RequestParam UUID projectId) throws ProjectNotFound {
+        return projectService.getProject(projectId);
     }
 }

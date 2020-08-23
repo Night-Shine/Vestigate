@@ -1,5 +1,6 @@
 package com.nightshine.vestigate.repository.team;
 
+import com.nightshine.vestigate.model.project.Project;
 import com.nightshine.vestigate.model.team.Team;;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -24,6 +25,10 @@ public interface TeamRepository extends JpaRepository<Team,UUID> {
 
     @Query("SELECT P FROM Team P WHERE P.isDeleted=false and P.id IN :teamIds")
     List<Team> getTeamsByIds(List<UUID> teamIds);
+
+    @Query("SELECT P FROM Team P WHERE P.isDeleted=false and P.teamName=:tName and P.projectId=:projectId")
+    Team findByTeamName(String tName, UUID projectId);
+
 
     @Modifying
     @Query("UPDATE Team c SET c.isDeleted=true WHERE c.id IN :ids")

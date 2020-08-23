@@ -3,14 +3,22 @@ package com.nightshine.vestigate.service.team;
 
 
 import com.nightshine.vestigate.exception.company.CompanyNotFound;
+import com.nightshine.vestigate.exception.project.ProjectNotFound;
 import com.nightshine.vestigate.exception.team.TeamNotFound;
+import com.nightshine.vestigate.model.board.Board;
+import com.nightshine.vestigate.model.company.Company;
+import com.nightshine.vestigate.model.project.Project;
 import com.nightshine.vestigate.model.team.Team;
 import com.nightshine.vestigate.payload.request.team.TeamUpdateRequest;
+import com.nightshine.vestigate.payload.response.ApiResponse;
+import com.nightshine.vestigate.repository.project.ProjectRepository;
 import com.nightshine.vestigate.repository.team.TeamRepository;
 import com.nightshine.vestigate.service.project.ProjectService;
 import com.nightshine.vestigate.utils.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -26,39 +34,63 @@ public class TeamService {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private ProjectRepository projectRepo;
 
 
-    public void saveTeam1(Team team, UUID projectId) throws Throwable {
-        team.setCompanyId(projectService.getCompanyId(projectId));
-        team.setProjectId(projectId);
+    public ResponseEntity<?> saveTeam(Team team, UUID projectId) throws Throwable,Exception {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(!project.isPresent()){
+            return new ResponseEntity(new ApiResponse(false, "Project does not exists!"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        else {
+            if(projectService.getCompanyId(projectId) == null)
+                return new ResponseEntity(new ApiResponse(false, "Company does not exists!"),
+                        HttpStatus.BAD_REQUEST);
+            Team isExists = teamRepository.findByTeamName(team.getTeamName(),projectId);
+            if (isExists != null)
+                return new ResponseEntity(new ApiResponse(false, "Team already exists!"),
+                        HttpStatus.BAD_REQUEST);
+            UUID cId = (UUID) projectService.getCompanyId(projectId).getBody();
+            System.out.println("obj = "+cId);
+            team.setCompanyId(cId);
+            team.setProjectId(projectId);
 
-        Team savedTeam = teamRepository.save(team);
-        UUID companyId = savedTeam.getCompanyId();
-        if(companyId == null)
-            throw new CompanyNotFound("Company does not exists");
-        boolean isAdded = projectService.addTeamToProject(projectId,team.getId());
-        if(!isAdded)
-            throw new Exception("Check project details/Exists Or team Details");
+            Team savedTeam = teamRepository.save(team);
+            ResponseEntity<?> isAdded = projectService.addTeamToProject(projectId, savedTeam.getId());
+            return new ResponseEntity(savedTeam, HttpStatus.CREATED);
+        }
     }
 
-    public List<Team> getTeamsByProject(UUID projectId){
-        return teamRepository.getTeamsByProject(projectId);
+    public ResponseEntity<?> getTeamsByProject(UUID projectId){
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(!project.isPresent()){
+            return new ResponseEntity(new ApiResponse(false, "Project does not exist!"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity(teamRepository.getTeamsByProject(projectId), HttpStatus.OK);
     }
 
-    public List<Team> getTeamsByCompany(UUID projectId) throws Throwable {
-        UUID companyId = projectService.getCompanyId(projectId);
+    public ResponseEntity<?> getTeamsByCompany(UUID projectId) throws Throwable {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(!project.isPresent()){
+            return new ResponseEntity(new ApiResponse(false, "Project does not exist!"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        UUID companyId = (UUID) projectService.getCompanyId(projectId).getBody();
         final List<Team> emptyList = new ArrayList<>();
         if(companyId == null)
-            return emptyList;
+            return new ResponseEntity(emptyList, HttpStatus.OK);
         List<Team> teamsList = teamRepository.getTeamsByCompany(companyId);
         if(teamsList != null) {
             if(teamsList.size() != 0)
-                return teamsList;
+                return new ResponseEntity(teamsList, HttpStatus.OK);
             else
-                return emptyList;
+                return new ResponseEntity(emptyList, HttpStatus.OK);
         }
         else {
-            return emptyList;
+            return new ResponseEntity(emptyList, HttpStatus.OK);
         }
     }
 
@@ -66,33 +98,40 @@ public class TeamService {
         return teamRepository.findAll();
     }
 
-    public void deleteTeam(UUID projectId, UUID teamId) throws Throwable {
+    public ResponseEntity<?> deleteTeam(UUID projectId, UUID teamId) throws Throwable {
         Optional<Team> team = teamRepository.findById(teamId);
         if(team.isPresent()) {
             teamRepository.deleteById(teamId);
-            boolean isDeleted = projectService.deleteTeamFromProject(projectId,teamId);
-            if(!isDeleted)
-                throw new TeamNotFound("Team not found");
+            ResponseEntity<?> isDeleted = projectService.deleteTeamFromProject(projectId,teamId);
+
+            if(!isDeleted.getBody().toString().equals("true"))
+                return new ResponseEntity(new ApiResponse(false, "Team does not exists!"),
+                        HttpStatus.BAD_REQUEST);
+            else
+                return new ResponseEntity(true, HttpStatus.CREATED);
         }
         else{
-           throw new TeamNotFound("Team not found");
+            return new ResponseEntity(new ApiResponse(false, "Team does not exists!"),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
-    public List<Team> getTeamsByIds(List<UUID> teamIds) throws TeamNotFound {
+    public ResponseEntity<?> getTeamsByIds(List<UUID> teamIds) throws TeamNotFound {
         List<Team> teams = teamRepository.getTeamsByIds(teamIds);
         if(teams.size() == 0){
-            throw new TeamNotFound("No such teams");
+            return new ResponseEntity(new ApiResponse(false, "Teams does not exists!"),
+                    HttpStatus.BAD_REQUEST);
         }
         else{
-            return teams;
+            return new ResponseEntity(teams, HttpStatus.CREATED);
         }
     }
 
-    public void addMembersToTeam(UUID teamId,UUID userId) throws TeamNotFound {
+    public ResponseEntity<?>  addMembersToTeam(UUID teamId,UUID userId) throws TeamNotFound {
         Optional<Team> team = teamRepository.findById(teamId);
         if(!team.isPresent())
-            throw new TeamNotFound("Team does not exist");
+            return new ResponseEntity(new ApiResponse(false, "Teams does not exists!"),
+                    HttpStatus.BAD_REQUEST);
         Team t = team.get();
         List<UUID> teamMembers = t.getTeamMembers();
         if(teamMembers == null){
@@ -104,24 +143,51 @@ public class TeamService {
             teamMembers.add(userId);
             t.setTeamMembers(teamMembers);
         }
-        teamRepository.save(t);
+        Team savedTeam = teamRepository.save(t);
+
+        return new ResponseEntity(savedTeam, HttpStatus.CREATED);
     }
 
-    public void deleteMultipleTeams(List<UUID> teamIds,UUID projectId) throws Throwable {
+    public ResponseEntity<?> deleteMultipleTeams(List<UUID> teamIds,UUID projectId) throws Throwable {
+        Optional<Project> project = projectRepo.findById(projectId);
+        if(!project.isPresent())
+            return new ResponseEntity(new ApiResponse(false, "Project does not exists!"),
+                    HttpStatus.BAD_REQUEST);
 
+        List<Boolean> isExists =new ArrayList<Boolean>(Arrays.asList(new Boolean[teamIds.size()]));
+        Collections.fill(isExists, Boolean.TRUE);
+
+        teamIds.forEach(bid -> {
+            Optional<Team> team = teamRepository.findById(bid);
+            if (!team.isPresent()) {
+                int index = teamIds.indexOf(bid);
+                isExists.set(index,false);
+            }
+        });
+
+        Boolean f = false;
+        if(isExists.indexOf(f) > 0) {
+            String msg =  (isExists.indexOf(f)+1) + " Team does not exists! " ;
+            return new ResponseEntity(new ApiResponse(false, msg),
+                    HttpStatus.BAD_REQUEST);
+        }
         teamRepository.deleteAll(teamIds);
         for(UUID id : teamIds){
             projectService.deleteTeamFromProject(projectId,id);
         }
+        return new ResponseEntity(new ApiResponse(true, "Teams deleted successfully"),
+                HttpStatus.BAD_REQUEST);
 
     }
 
-    public Team updateTeam(TeamUpdateRequest teamUpdateRequest, UUID  teamId) throws TeamNotFound {
+    public ResponseEntity<?>  updateTeam(TeamUpdateRequest teamUpdateRequest, UUID  teamId) throws TeamNotFound {
         Optional<Team> team =  teamRepository.findById(teamId);
         if(!team.isPresent())
-            throw new TeamNotFound("No such Team found");
+            return new ResponseEntity(new ApiResponse(false, "Teams does not exists!"),
+                    HttpStatus.BAD_REQUEST);
         Team t = team.get();
         Helper.copyTeamDetails(t,teamUpdateRequest);
-        return teamRepository.save(t);
+        Team savedTeam = teamRepository.save(t);
+        return new ResponseEntity(savedTeam, HttpStatus.CREATED);
     }
 }
