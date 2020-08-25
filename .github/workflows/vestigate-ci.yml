@@ -22,5 +22,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - uses: docker-practice/actions-setup-docker@0.0.1
     - name: Run spring tests
-      run: cd vestigate && mvn test 
+      run: cd vestigate && docker-compose up -d && mvn test 
