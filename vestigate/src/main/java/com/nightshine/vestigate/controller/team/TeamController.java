@@ -23,19 +23,17 @@ public class TeamController {
 
     @PostMapping("/addTeam")
     private ResponseEntity<?> addTeam(@RequestBody Team team, @RequestParam UUID projectId) throws Throwable {
-        teamService.saveTeam1(team,projectId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
+        return teamService.saveTeam(team,projectId);
     }
 
     @GetMapping("/getProjectTeams")
-    private ResponseEntity<List<Team>> getTeamsOfProject(@RequestParam UUID projectId ){
+    private ResponseEntity<?> getTeamsOfProject(@RequestParam UUID projectId ){
         return ResponseEntity.ok(teamService.getTeamsByProject(projectId));
     }
 
     @GetMapping("/getCompanyTeams")
-    private ResponseEntity<List<Team>> getTeamsOfCompany(@RequestParam UUID projectId) throws Throwable {
-        return ResponseEntity.ok(teamService.getTeamsByCompany(projectId));
+    private ResponseEntity<?> getTeamsOfCompany(@RequestParam UUID projectId) throws Throwable {
+        return teamService.getTeamsByCompany(projectId);
     }
 
     @GetMapping("/getAllTeams")
@@ -45,19 +43,19 @@ public class TeamController {
 
     @DeleteMapping("/deleteTeam")
     private ResponseEntity<?> deleteTeam(@RequestParam UUID projectId,@RequestParam UUID teamId) throws Throwable {
-         teamService.deleteTeam(projectId,teamId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        return teamService.deleteTeam(projectId,teamId);
     }
 
     @DeleteMapping("/deleteMultipleTeams")
     public ResponseEntity<?> deleteMultipleTeams(@Valid @RequestBody List<UUID> ids,@RequestParam UUID projectId) throws Throwable {
-        teamService.deleteMultipleTeams(ids,projectId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return teamService.deleteMultipleTeams(ids,projectId);
     }
 
     @PutMapping("/updateTeam/{teamId}")
-    public ResponseEntity<Team> updateTeams(@Valid @RequestBody TeamUpdateRequest teamUpdateRequest, @PathVariable UUID teamId) throws TeamNotFound {
-        Team team = teamService.updateTeam(teamUpdateRequest, teamId);
-        return new ResponseEntity<>(team, HttpStatus.ACCEPTED);
+    public ResponseEntity<?> updateTeams(@Valid @RequestBody TeamUpdateRequest teamUpdateRequest, @PathVariable UUID teamId) throws TeamNotFound {
+        return teamService.updateTeam(teamUpdateRequest, teamId);
     }
+
+
 }

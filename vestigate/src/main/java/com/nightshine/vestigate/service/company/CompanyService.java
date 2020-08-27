@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,5 +61,28 @@ public class CompanyService {
 
     public void removeMultipleCompanies(List<UUID> ids) {
         companyRepository.deleteAll(ids);
+    }
+
+    public ResponseEntity<?> addProjectToCompany(UUID companyId, UUID projectId) {
+        Optional<Company> company = companyRepository.findById(companyId);
+        if(company.isPresent()) {
+            Company tempCompany = company.get();
+            List<UUID> projectList = tempCompany.getProjects();
+            if(projectList == null) {
+                List<UUID> pIds = new ArrayList<>();
+                pIds.add(projectId);
+                tempCompany.setProjects(pIds);
+            }
+            else {
+                projectList.add(projectId);
+                tempCompany.setProjects(projectList);
+            }
+            companyRepository.save(tempCompany);
+            return new ResponseEntity(tempCompany, HttpStatus.CREATED);
+        }
+        else{
+            return new ResponseEntity(new ApiResponse(false, "Company doesn't exists!"),
+                    HttpStatus.BAD_REQUEST);
+        }
     }
 }
