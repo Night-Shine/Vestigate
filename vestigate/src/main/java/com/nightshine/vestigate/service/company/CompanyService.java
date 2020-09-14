@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Transactional
@@ -55,12 +56,39 @@ public class CompanyService {
         return new ResponseEntity(company, HttpStatus.ACCEPTED);
     }
 
-    public void removeCompany(UUID companyId) {
-        companyRepository.deleteById(companyId);
+    public ResponseEntity<?> removeCompany(UUID companyId) {
+        Optional<Company> company = companyRepository.findById(companyId);
+        if(company.isPresent()){
+            companyRepository.deleteById(companyId);
+            return new ResponseEntity(new ApiResponse(true, "Company deleted successfully!"),
+                    HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity(new ApiResponse(false, "Company does not exists!"),
+                    HttpStatus.BAD_REQUEST);
+        }
     }
 
-    public void removeMultipleCompanies(List<UUID> ids) {
-        companyRepository.deleteAll(ids);
+    public ResponseEntity<?> removeMultipleCompanies(List<UUID> ids) {
+        AtomicInteger validCount = new AtomicInteger();
+        ids.forEach(id -> {
+            int validCompany = 0;
+            Optional<Company> company = companyRepository.findById(id);
+            if(company.isPresent()){
+                validCompany++;
+            }
+            validCount.set(validCount.get() + validCompany);
+        });
+        System.out.println(validCount);
+        if(validCount.get() == ids.size()) {
+            companyRepository.deleteAll(ids);
+            return new ResponseEntity(new ApiResponse(true, "Companies deleted successfully!"),
+                    HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity(new ApiResponse(false, "Some of your requested companies does not exit!"),
+                    HttpStatus.BAD_REQUEST);
+        }
     }
 
     public ResponseEntity<?> addProjectToCompany(UUID companyId, UUID projectId) {

@@ -46,19 +46,19 @@ public class CompanyController {
                                                  @PathVariable UUID CompanyId) {
         ResponseEntity status = companyService.updateCompany(companyRegistrationUploadRequest, CompanyId);
         if(status.getStatusCodeValue() == 400)
-            return new ResponseEntity(status, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(status.getBody(), HttpStatus.BAD_REQUEST);
         return new ResponseEntity(status.getBody(), HttpStatus.ACCEPTED);
     }
 
     @DeleteMapping("/deleteCompany/{companyId}")
     public ResponseEntity<?> deleteCompanyById(@Valid @PathVariable UUID companyId) {
-        companyService.removeCompany(companyId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        ResponseEntity status = companyService.removeCompany(companyId);
+        return new ResponseEntity(status.getBody(), status.getStatusCode());
     }
 
     @DeleteMapping("/deleteMultipleCompanies")
     public ResponseEntity<?> deleteMultipleCompanies(@Valid @RequestBody List<UUID> ids) {
-        companyService.removeMultipleCompanies(ids);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        ResponseEntity status = companyService.removeMultipleCompanies(ids);
+        return new ResponseEntity(status.getBody(), status.getStatusCode());
     }
 }
